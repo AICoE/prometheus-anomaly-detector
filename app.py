@@ -26,8 +26,9 @@ METRICS_LIST = Configuration.metrics_list
 
 PREDICTOR_MODEL_LIST = []
 
-HEADERS = {"Authorization": "bearer " + Configuration.oath_token}
-pc = PrometheusConnect(url=Configuration.prometheus_url, headers=HEADERS, disable_ssl=True)
+pc = PrometheusConnect(
+    url=Configuration.prometheus_url, headers=Configuration.prom_connect_headers, disable_ssl=True
+)
 for metric in METRICS_LIST:
     # Initialize a predictor for all metrics first
     metric_init = pc.get_current_metric_value(metric_name=metric)
