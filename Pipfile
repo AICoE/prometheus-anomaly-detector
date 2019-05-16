@@ -9,7 +9,7 @@ apscheduler = "*"
 prometheus_client = "*"
 prometheus_api_client = "*"
 tornado = "*"
-fbprophet = "*"
+fbprophet = "==0.4"
 
 [requires]
 python_version = "3.6"
