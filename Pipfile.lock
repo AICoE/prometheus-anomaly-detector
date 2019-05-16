@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "b7f844f611c3228bbded42eab8470a06187abc6f0e1bd0b537204ef506b20efe"
+            "sha256": "099f47e36980bf16c73df7f4daae4fcc18bac2efe9e0eac7898c59668bb3781a"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -108,10 +108,10 @@
         },
         "fbprophet": {
             "hashes": [
-                "sha256:f8482b0ed0706913e3096c9ff07f33f9302f85373ec450608ebdbb770f8fff54"
+                "sha256:c67fde2845db52dbdb4becd312b271575ce1c804be666ed1eee94339c5a35127"
             ],
             "index": "pypi",
-            "version": "==0.4"
+            "version": "==0.5"
         },
         "holidays": {
             "hashes": [
@@ -316,6 +316,13 @@
                 "sha256:08c039560a6da2fe4f2c426d0766e284d3b736e355f8dd24b37367b0bb41973b"
             ],
             "version": "==1.3.3"
+        },
+        "setuptools-git": {
+            "hashes": [
+                "sha256:e7764dccce7d97b4b5a330d7b966aac6f9ac026385743fd6cedad553f2494cfa",
+                "sha256:ff64136da01aabba76ae88b050e7197918d8b2139ccbf6144e14d472b9c40445"
+            ],
+            "version": "==1.2"
         },
         "six": {
             "hashes": [
