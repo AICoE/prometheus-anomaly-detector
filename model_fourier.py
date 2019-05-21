@@ -2,9 +2,7 @@ import datetime
 import pandas as pd
 import numpy as np
 from metric import Metric
-from prometheus_client import Gauge
 from numpy import fft
-
 
 class MetricPredictor:
     """docstring for Predictor."""
@@ -14,7 +12,6 @@ class MetricPredictor:
     model = None
     predicted_df = None
     metric = None
-    predicted_metric_gauge = None
 
     def __init__(self, metric):
         self.metric = Metric(metric)
@@ -39,8 +36,6 @@ class MetricPredictor:
                                                   * time_steps + phase)
 
         return restored_signal + p[0] * time_steps
-
-
 
     def train(self, metric_data, prediction_range = 1440):
 
@@ -86,23 +81,3 @@ class MetricPredictor:
         """
         nearest_index = self.predicted_df.index.get_loc(prediction_datetime, method="nearest")
         return self.predicted_df.iloc[[nearest_index]]
-
-
-def get_df_from_metric_json(metric):
-    """
-    Method to convert a json object of a Prometheus metric to a dictionary of shaped Pandas DataFrames
-
-    The shape is dict[metric_metadata] = Pandas Object
-
-    Pandas Object = timestamp, value
-                    15737933, 1
-                    .....
-
-    This method can also be used to update an existing dictionary with new data
-    """
-    df = pd.DataFrame(metric["values"], columns=["ds", "y"]).apply(
-        pd.to_numeric, args=({"errors": "coerce"})
-    )
-    df["ds"] = pd.to_datetime(df["ds"], unit="s")
-
-    return df
