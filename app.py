@@ -82,7 +82,7 @@ def train_model():
         new_metric_data = pc.get_metric_range_data(
             metric_name=metric_to_predict.metric_name,
             label_config=metric_to_predict.label_config,
-            start_time="720m",
+            start_time="15m",
         )[0]
         # Train the new model
         predictor_model.train(new_metric_data)
