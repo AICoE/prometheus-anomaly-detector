@@ -54,7 +54,7 @@ class MetricPredictor:
         data = self.metric.metric_values
         vals = np.array(data["y"].tolist())
         print("Training Model .....")
-        forecast_values = self.fourier_extrapolation(vals, prediction_range, int(len(vals)/3))
+        forecast_values = self.fourier_extrapolation(vals, prediction_range, 1)#int(len(vals)/3))
         dataframe_cols = {}
         dataframe_cols["yhat"] = np.array(forecast_values)
 
