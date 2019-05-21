@@ -2,8 +2,6 @@ import datetime
 import pandas
 from fbprophet import Prophet
 from metric import Metric
-from prometheus_client import Gauge
-
 
 class MetricPredictor:
     """docstring for Predictor."""
@@ -13,7 +11,6 @@ class MetricPredictor:
     model = None
     predicted_df = None
     metric = None
-    predicted_metric_gauge = None
 
     def __init__(self, metric):
         self.metric = Metric(metric)
