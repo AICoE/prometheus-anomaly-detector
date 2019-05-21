@@ -43,23 +43,3 @@ class MetricPredictor:
         """
         nearest_index = self.predicted_df.index.get_loc(prediction_datetime, method="nearest")
         return self.predicted_df.iloc[[nearest_index]]
-
-
-def get_df_from_metric_json(metric):
-    """
-    Method to convert a json object of a Prometheus metric to a dictionary of shaped Pandas DataFrames
-
-    The shape is dict[metric_metadata] = Pandas Object
-
-    Pandas Object = timestamp, value
-                    15737933, 1
-                    .....
-
-    This method can also be used to update an existing dictionary with new data
-    """
-    df = pandas.DataFrame(metric["values"], columns=["ds", "y"]).apply(
-        pandas.to_numeric, args=({"errors": "coerce"})
-    )
-    df["ds"] = pandas.to_datetime(df["ds"], unit="s")
-
-    return df
