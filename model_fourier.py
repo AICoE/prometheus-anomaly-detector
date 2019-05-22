@@ -49,7 +49,7 @@ class MetricPredictor:
         data = self.metric.metric_values
         vals = np.array(data["y"].tolist())
         print("Training Model .....")
-        forecast_values = self.fourier_extrapolation(vals, prediction_range, int(len(vals)/3))
+        forecast_values = self.fourier_extrapolation(vals, prediction_range, 1)#int(len(vals)/3))
         dataframe_cols = {}
         dataframe_cols["yhat"] = np.array(forecast_values)
 
@@ -61,10 +61,15 @@ class MetricPredictor:
         # create dummy upper and lower bounds
 
         print("Computing Bounds .... ")
-        upper_bound = np.mean(forecast_values) + np.std(forecast_values)
-        lower_bound = np.mean(forecast_values) - np.std(forecast_values)
-        dataframe_cols["yhat_upper"] = np.full((len(forecast_values)), upper_bound)
-        dataframe_cols["yhat_lower"] = np.full((len(forecast_values)), lower_bound)
+
+        upper_bound = np.array([(np.mean(forecast_values[:i]) + (np.std(forecast_values[:i]) * 2))
+                                for i in range(len(forecast_values))])
+        upper_bound[0] = np.mean(forecast_values[0])  # to account for no std of a single value
+        lower_bound = np.array([(np.mean(forecast_values[:i]) - (np.std(forecast_values[:i]) * 2))
+                                for i in range(len(forecast_values))])
+        lower_bound[0] = np.mean(forecast_values[0])  # to account for no std of a single value
+        dataframe_cols["yhat_upper"] = upper_bound
+        dataframe_cols["yhat_lower"] = lower_bound
 
         # create series and index into predictions_dict
         print("Formatting Forecast to Pandas ..... ")
