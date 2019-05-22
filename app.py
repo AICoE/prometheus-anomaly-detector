@@ -82,7 +82,7 @@ def train_model():
         new_metric_data = pc.get_metric_range_data(
             metric_name=metric_to_predict.metric_name,
             label_config=metric_to_predict.label_config,
-            start_time="15m",
+            start_time=(str(Configuration.retraining_interval_minutes) + "m"),
         )[0]
         # Train the new model
         predictor_model.train(new_metric_data)
@@ -96,6 +96,7 @@ if __name__ == "__main__":
     app = make_app()
     app.listen(8080)
     scheduler = TornadoScheduler()
-    scheduler.add_job(train_model, "interval", minutes=15)
+    _LOGGER.info("Will retrain model every %s minutes", Configuration.retraining_interval_minutes)
+    scheduler.add_job(train_model, "interval", minutes=Configuration.retraining_interval_minutes)
     scheduler.start()
     tornado.ioloop.IOLoop.instance().start()

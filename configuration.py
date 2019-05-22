@@ -14,3 +14,4 @@ class Configuration:
             "up{app='openshift-web-console', instance='172.44.0.18:8443'}; up{app='openshift-web-console', instance='172.44.4.18:8443'}; es_process_cpu_percent{instance='172.44.17.134:30290'",
         )
     ).split(";")
+    retraining_interval_minutes = int(os.getenv("FLT_RETRAINING_INTERVAL_MINUTES", "15"))
