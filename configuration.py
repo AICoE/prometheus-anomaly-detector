@@ -5,7 +5,9 @@ class Configuration:
     """docstring for Configuration."""
 
     prometheus_url = os.getenv("FLT_PROM_URL")
-    prom_connect_headers = {"Authorization": "bearer " + os.getenv("FLT_PROM_ACCESS_TOKEN")}
+    prom_connect_headers = None
+    if os.getenv("FLT_PROM_ACCESS_TOKEN"):
+        prom_connect_headers = {"Authorization": "bearer " + os.getenv("FLT_PROM_ACCESS_TOKEN")}
     metrics_list = str(
         os.getenv(
             "FLT_METRICS_LIST",
