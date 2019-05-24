@@ -1,4 +1,5 @@
 import pandas
+import dateparser
 
 
 class Metric:
@@ -7,10 +8,12 @@ class Metric:
     metric_name = None
     label_config = {}
     metric_values = None
+    oldest_data_datetime = None
 
-    def __init__(self, metric):
+    def __init__(self, metric, oldest_data_datetime=None):
         self.metric_name = metric["metric"]["__name__"]
         self.label_config = metric["metric"]
+        self.oldest_data_datetime = oldest_data_datetime
         del self.label_config["__name__"]
 
         # if it is a single value metric change key name
@@ -43,7 +46,15 @@ class Metric:
                 .sort_values(by=["ds"])
                 .reset_index(drop=True)
             )
+            # if oldest_data_datetime is set, trim the dataframe and only keep the newer data
+            if self.oldest_data_datetime:
+                # create a time range mask
+                mask = self.metric_values["ds"] >= dateparser.parse(str(self.oldest_data_datetime))
+                # truncate the df within the mask
+                self.metric_values = self.metric_values.loc[mask]
+
             return self
+
         if self.metric_name != other.metric_name:
             error_string = "Different metric names"
         else:
