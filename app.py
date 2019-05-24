@@ -33,7 +33,9 @@ for metric in METRICS_LIST:
     # Initialize a predictor for all metrics first
     metric_init = pc.get_current_metric_value(metric_name=metric)
     for unique_metric in metric_init:
-        PREDICTOR_MODEL_LIST.append(model.MetricPredictor(unique_metric))
+        PREDICTOR_MODEL_LIST.append(
+            model.MetricPredictor(unique_metric, Configuration.rolling_data_window_size)
+        )
 
 # A gauge set for the predicted values
 GAUGE_DICT = dict()

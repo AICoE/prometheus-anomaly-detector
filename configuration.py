@@ -15,3 +15,4 @@ class Configuration:
         )
     ).split(";")
     retraining_interval_minutes = int(os.getenv("FLT_RETRAINING_INTERVAL_MINUTES", "15"))
+    rolling_data_window_size = str(os.getenv("FLT_ROLLING_DATA_WINDOW_SIZE", "15d"))
