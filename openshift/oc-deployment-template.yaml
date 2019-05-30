@@ -8,7 +8,7 @@ metadata:
     openshift.io/display-name: "fbprophet metric prediction"
     version: 0.1.0
     tags: fbprophet,prometheus,metrics,anomaly detection
-    template.openshift.io/documentation-url: https://github.com/4n4nd/prometheus-anomaly-detector-2
+    template.openshift.io/documentation-url: https://github.com/AICoE/prometheus-anomaly-detector
   labels:
     application: ${APPLICATION_NAME}
     template: ${APPLICATION_NAME}-template
@@ -16,11 +16,11 @@ metadata:
 
 parameters:
 - description: The name for application
-  value: 'prometheus-anomaly-detector'
+  value: 'prometheus-anomaly-detector-prophet'
   name: APPLICATION_NAME
   required: true
 - name: GIT_URI
-  value: https://github.com/4n4nd/prometheus-anomaly-detector-2.git
+  value: https://github.com/AICoE/prometheus-anomaly-detector.git
   required: true
 - name: FLT_DEBUG_MODE
   description: Enable verbose log for debugging
@@ -36,6 +36,14 @@ parameters:
   description: List of metrics (with labels), that will be collected from prometheus and predicted
   required: true
   value: "thoth_solver_jobs_seconds{instance='metrics-exporter-thoth-frontend-stage.cloud.paas.upshift.redhat.com:80',job='Thoth Metrics (stage)'}"
+- name: FLT_RETRAINING_INTERVAL_MINUTES
+  description: How often should the anomaly detector retrain the model (in minutes)
+  required: true
+  value: "15"
+- name: FLT_ROLLING_DATA_WINDOW_SIZE
+  description: this will create a rolling data window on which the model will be trained. example: if set to 15d will train the model on past 15 days of data
+  required: true
+  value: "15d"
 
 objects:
 - apiVersion: v1
@@ -104,6 +112,10 @@ objects:
             value: "${FLT_PROM_ACCESS_TOKEN}"
           - name: FLT_METRICS_LIST
             value: "${FLT_METRICS_LIST}"
+          - name: FLT_RETRAINING_INTERVAL_MINUTES
+            value: "${FLT_RETRAINING_INTERVAL_MINUTES}"
+          - name: FLT_ROLLING_DATA_WINDOW_SIZE
+            value: "${FLT_ROLLING_DATA_WINDOW_SIZE}"
           - name: FLT_DEBUG_MODE
             value: "${FLT_DEBUG_MODE}"
           image: ${APPLICATION_NAME}
