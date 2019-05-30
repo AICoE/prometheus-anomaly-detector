@@ -7,7 +7,7 @@ import tornado.web
 import tornado
 from prometheus_client import Gauge, generate_latest, REGISTRY
 from apscheduler.schedulers.tornado import TornadoScheduler
-import model_fourier as model
+import model
 from prometheus_api_client import PrometheusConnect
 from configuration import Configuration
 
@@ -33,7 +33,9 @@ for metric in METRICS_LIST:
     # Initialize a predictor for all metrics first
     metric_init = pc.get_current_metric_value(metric_name=metric)
     for unique_metric in metric_init:
-        PREDICTOR_MODEL_LIST.append(model.MetricPredictor(unique_metric))
+        PREDICTOR_MODEL_LIST.append(
+            model.MetricPredictor(unique_metric, Configuration.rolling_data_window_size)
+        )
 
 # A gauge set for the predicted values
 GAUGE_DICT = dict()

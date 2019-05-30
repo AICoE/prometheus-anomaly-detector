@@ -10,6 +10,7 @@ prometheus_client = "*"
 prometheus_api_client = "*"
 tornado = "*"
 fbprophet = "*"
+dateparser = "*"
 
 [requires]
 python_version = "3.6"
