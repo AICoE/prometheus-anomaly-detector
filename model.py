@@ -1,7 +1,11 @@
 import datetime
+import logging
 import pandas
 from fbprophet import Prophet
 from metric import Metric
+
+# Set up logging
+_LOGGER = logging.getLogger(__name__)
 
 
 class MetricPredictor:
@@ -37,7 +41,7 @@ class MetricPredictor:
         forecast = forecast[["timestamp", "yhat", "yhat_lower", "yhat_upper"]]
         forecast = forecast.set_index("timestamp")
         self.predicted_df = forecast
-        print(forecast)
+        _LOGGER.debug(forecast)
 
     def predict_value(self, prediction_datetime):
         """

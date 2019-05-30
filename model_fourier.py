@@ -1,8 +1,12 @@
 import datetime
+import logging
 import pandas as pd
 import numpy as np
 from metric import Metric
 from numpy import fft
+
+# Set up logging
+_LOGGER = logging.getLogger(__name__)
 
 
 class MetricPredictor:
@@ -44,11 +48,6 @@ class MetricPredictor:
             metric_data
         )  # because the rolling_data_window_size is set, this df should not bloat
 
-        total_label_num = len(self.metric.metric_values)
-        PREDICT_DURATUION = prediction_range
-        current_label_num = 0
-        limit_iterator_num = 0
-        predictions_dict = {}
         data = self.metric.metric_values
         vals = np.array(data["y"].tolist())
         print("Training Model .....")
@@ -57,7 +56,7 @@ class MetricPredictor:
         dataframe_cols["yhat"] = np.array(forecast_values)
 
         # find most recent timestamp from original data and extrapolate new timestamps
-        print("Creating Dummy Timestamps.....")
+        _LOGGER.debug("Creating Dummy Timestamps.....")
         minimum_time = min(data["ds"])
         dataframe_cols["timestamp"] = pd.date_range(
             minimum_time, periods=len(forecast_values), freq="min"
@@ -65,7 +64,7 @@ class MetricPredictor:
 
         # create dummy upper and lower bounds
 
-        print("Computing Bounds .... ")
+        _LOGGER.debug("Computing Bounds .... ")
 
         upper_bound = np.array(
             [
@@ -85,13 +84,13 @@ class MetricPredictor:
         dataframe_cols["yhat_lower"] = lower_bound
 
         # create series and index into predictions_dict
-        print("Formatting Forecast to Pandas ..... ")
+        _LOGGER.debug("Formatting Forecast to Pandas ..... ")
 
         forecast = pd.DataFrame(data=dataframe_cols)
         forecast = forecast.set_index("timestamp")
 
         self.predicted_df = forecast
-        print(forecast)
+        _LOGGER.debug(forecast)
 
     def predict_value(self, prediction_datetime):
         """

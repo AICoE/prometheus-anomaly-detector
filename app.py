@@ -7,19 +7,18 @@ import tornado.web
 import tornado
 from prometheus_client import Gauge, generate_latest, REGISTRY
 from apscheduler.schedulers.tornado import TornadoScheduler
-import model
 from prometheus_api_client import PrometheusConnect
 from configuration import Configuration
+import model
 
-# Set up logging
-_LOGGER = logging.getLogger(__name__)
 if os.getenv("FLT_DEBUG_MODE", "False") == "True":
     LOGGING_LEVEL = logging.DEBUG  # Enable Debug mode
 else:
     LOGGING_LEVEL = logging.INFO
 # Log record format
 logging.basicConfig(format="%(asctime)s:%(levelname)s:%(name)s: %(message)s", level=LOGGING_LEVEL)
-
+# Set up logging
+_LOGGER = logging.getLogger(__name__)
 
 METRICS_LIST = Configuration.metrics_list
 
@@ -86,8 +85,16 @@ def train_model():
             label_config=metric_to_predict.label_config,
             start_time=(str(Configuration.retraining_interval_minutes) + "m"),
         )[0]
+
         # Train the new model
+        start_time = datetime.now()
         predictor_model.train(new_metric_data)
+        _LOGGER.info(
+            "Total Training time taken = %s, for metric: %s %s",
+            str(datetime.now() - start_time),
+            metric_to_predict.metric_name,
+            metric_to_predict.label_config,
+        )
 
 
 if __name__ == "__main__":
