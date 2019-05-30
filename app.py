@@ -7,7 +7,7 @@ import tornado.web
 import tornado
 from prometheus_client import Gauge, generate_latest, REGISTRY
 from apscheduler.schedulers.tornado import TornadoScheduler
-import model_fourier as model
+import model
 from prometheus_api_client import PrometheusConnect
 from configuration import Configuration
 
