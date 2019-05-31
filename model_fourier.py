@@ -41,8 +41,9 @@ class MetricPredictor:
 
         return restored_signal + p[0] * time_steps
 
-    def train(self, metric_data, prediction_range=1440):
+    def train(self, metric_data, prediction_duration=15):
 
+        prediction_range = prediction_duration
         # convert incoming metric to Metric Object
         self.metric = self.metric + Metric(
             metric_data

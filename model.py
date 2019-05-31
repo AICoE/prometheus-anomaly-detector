@@ -20,7 +20,8 @@ class MetricPredictor:
     def __init__(self, metric, rolling_data_window_size="10d"):
         self.metric = Metric(metric, rolling_data_window_size)
 
-    def train(self, metric_data, prediction_duration=15, prediction_freq="1MIN"):
+    def train(self, metric_data, prediction_duration=15):
+        prediction_freq = "1MIN"
         # convert incoming metric to Metric Object
         self.metric = self.metric + Metric(
             metric_data

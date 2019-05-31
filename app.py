@@ -88,7 +88,7 @@ def train_model():
 
         # Train the new model
         start_time = datetime.now()
-        predictor_model.train(new_metric_data)
+        predictor_model.train(new_metric_data, Configuration.retraining_interval_minutes)
         _LOGGER.info(
             "Total Training time taken = %s, for metric: %s %s",
             str(datetime.now() - start_time),
