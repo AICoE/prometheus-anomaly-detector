@@ -56,15 +56,13 @@ class MainHandler(tornado.web.RequestHandler):
         for predictor_model in PREDICTOR_MODEL_LIST:
             prediction = predictor_model.predict_value(datetime.now())
             metric_name = predictor_model.metric.metric_name
-            GAUGE_DICT[metric_name].labels(
-                **predictor_model.metric.label_config, value_type="yhat"
-            ).set(prediction["yhat"][0])
-            GAUGE_DICT[metric_name].labels(
-                **predictor_model.metric.label_config, value_type="yhat_lower"
-            ).set(prediction["yhat_lower"][0])
-            GAUGE_DICT[metric_name].labels(
-                **predictor_model.metric.label_config, value_type="yhat_upper"
-            ).set(prediction["yhat_upper"][0])
+
+            # Check for all the columns available in the prediction
+            # and publish the values for each of them
+            for column_name in list(prediction.columns):
+                GAUGE_DICT[metric_name].labels(
+                    **predictor_model.metric.label_config, value_type=column_name
+                ).set(prediction[column_name][0])
 
         self.write(generate_latest(REGISTRY).decode("utf-8"))
         self.set_header("Content-Type", "text; charset=utf-8")
