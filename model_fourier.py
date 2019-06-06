@@ -69,14 +69,24 @@ class MetricPredictor:
 
         upper_bound = np.array(
             [
-                (np.mean(forecast_values[:i]) + (np.std(forecast_values[:i]) * 2))
+                (
+                    np.ma.average(
+                        forecast_values[:i], weights=np.linspace(0, 1, num=len(forecast_values[:i]))
+                    )
+                    + (np.std(forecast_values[:i]) * 2)
+                )
                 for i in range(len(forecast_values))
             ]
         )
         upper_bound[0] = np.mean(forecast_values[0])  # to account for no std of a single value
         lower_bound = np.array(
             [
-                (np.mean(forecast_values[:i]) - (np.std(forecast_values[:i]) * 2))
+                (
+                    np.ma.average(
+                        forecast_values[:i], weights=np.linspace(0, 1, num=len(forecast_values[:i]))
+                    )
+                    - (np.std(forecast_values[:i]) * 2)
+                )
                 for i in range(len(forecast_values))
             ]
         )
