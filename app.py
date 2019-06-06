@@ -10,6 +10,7 @@ from apscheduler.schedulers.tornado import TornadoScheduler
 from prometheus_api_client import PrometheusConnect
 from configuration import Configuration
 import model
+from metric import Metric
 
 if os.getenv("FLT_DEBUG_MODE", "False") == "True":
     LOGGING_LEVEL = logging.DEBUG  # Enable Debug mode
@@ -54,6 +55,15 @@ class MainHandler(tornado.web.RequestHandler):
     def get(self):
         # update metric value on every request and publish the metric
         for predictor_model in PREDICTOR_MODEL_LIST:
+            # get the current metric value so that it can be compared with the
+            # predicted values
+            current_metric_value = Metric(
+                pc.get_current_metric_value(
+                    metric_name=predictor_model.metric.metric_name,
+                    label_config=predictor_model.metric.label_config,
+                )[0]
+            )
+
             prediction = predictor_model.predict_value(datetime.now())
             metric_name = predictor_model.metric.metric_name
 
@@ -63,6 +73,19 @@ class MainHandler(tornado.web.RequestHandler):
                 GAUGE_DICT[metric_name].labels(
                     **predictor_model.metric.label_config, value_type=column_name
                 ).set(prediction[column_name][0])
+
+            # Calculate for an anomaly (can be different for different models)
+            anomaly = 1
+            if (current_metric_value.metric_values["y"][0] < prediction["yhat_upper"][0]) and (
+                current_metric_value.metric_values["y"][0] > prediction["yhat_lower"][0]
+            ):
+                anomaly = 0
+
+            # create a new time series that has value_type=anomaly
+            # this value is 1 if an anomaly is found 0 if not
+            GAUGE_DICT[metric_name].labels(
+                **predictor_model.metric.label_config, value_type="anomaly"
+            ).set(anomaly)
 
         self.write(generate_latest(REGISTRY).decode("utf-8"))
         self.set_header("Content-Type", "text; charset=utf-8")
