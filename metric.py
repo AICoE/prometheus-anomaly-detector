@@ -1,5 +1,6 @@
 import pandas
 import dateparser
+from copy import deepcopy
 
 
 class Metric:
@@ -12,7 +13,7 @@ class Metric:
 
     def __init__(self, metric, oldest_data_datetime=None):
         self.metric_name = metric["metric"]["__name__"]
-        self.label_config = metric["metric"]
+        self.label_config = deepcopy(metric["metric"])
         self.oldest_data_datetime = oldest_data_datetime
         del self.label_config["__name__"]
 
