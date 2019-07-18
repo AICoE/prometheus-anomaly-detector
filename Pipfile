@@ -7,10 +7,11 @@ name = "pypi"
 pandas = "*"
 apscheduler = "*"
 prometheus_client = "*"
-prometheus_api_client = "*"
+prometheus_api_client = "==0.0.2b2"
 tornado = "*"
 fbprophet = "*"
 dateparser = "*"
+mlflow = "*"
 
 [requires]
 python_version = "3.6"
