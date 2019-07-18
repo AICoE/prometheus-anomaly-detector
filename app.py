@@ -52,7 +52,7 @@ for predictor in PREDICTOR_MODEL_LIST:
 
 
 class MainHandler(tornado.web.RequestHandler):
-    def get(self):
+    async def get(self):
         # update metric value on every request and publish the metric
         for predictor_model in PREDICTOR_MODEL_LIST:
             # get the current metric value so that it can be compared with the
@@ -93,18 +93,22 @@ class MainHandler(tornado.web.RequestHandler):
 
 def make_app():
     _LOGGER.info("Initializing Tornado Web App")
-    return tornado.web.Application([(r"/metrics", MainHandler)])
+    return tornado.web.Application([(r"/metrics", MainHandler), (r"/", MainHandler)])
 
 
-def train_model():
+def train_model(initial_run=False):
     for predictor_model in PREDICTOR_MODEL_LIST:
         metric_to_predict = predictor_model.metric
+
+        data_start_time = str(Configuration.retraining_interval_minutes) + "m"
+        if initial_run:
+            data_start_time = Configuration.rolling_data_window_size
 
         # Download new metric data from prometheus
         new_metric_data = pc.get_metric_range_data(
             metric_name=metric_to_predict.metric_name,
             label_config=metric_to_predict.label_config,
-            start_time=(str(Configuration.retraining_interval_minutes) + "m"),
+            start_time=(str(data_start_time)),
         )[0]
 
         # Train the new model
@@ -120,7 +124,7 @@ def train_model():
 
 if __name__ == "__main__":
     # Initial run to generate metrics, before they are exposed
-    train_model()
+    train_model(initial_run=True)
 
     # Start up the server to expose the metrics.
     app = make_app()
