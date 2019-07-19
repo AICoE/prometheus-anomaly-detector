@@ -28,3 +28,9 @@ class Configuration:
     # example: if set to 15d will train the model on past 15 days of data,
     # every time new data is data, it will truncate the data out of this range.
     rolling_data_window_size = str(os.getenv("FLT_ROLLING_DATA_WINDOW_SIZE", "15d"))
+
+    # uri for the mlflow tracking server
+    mlflow_tracking_uri = str(os.getenv("MLFLOW_TRACKING_URI"))
+
+    # threshold value to calculate true anomalies using a linear function
+    true_anomaly_threshold = float(os.getenv("FLT_TRUE_ANOMALY_THRESHOLD", "0.001"))
