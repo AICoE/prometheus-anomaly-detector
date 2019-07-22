@@ -2,7 +2,7 @@ import datetime
 import logging
 import pandas
 from fbprophet import Prophet
-from metric import Metric
+from prometheus_api_client import Metric
 
 # Set up logging
 _LOGGER = logging.getLogger(__name__)
@@ -35,7 +35,7 @@ class MetricPredictor:
 
         self.model.fit(self.metric.metric_values)
         future = self.model.make_future_dataframe(
-            periods=int(prediction_duration), freq=prediction_freq
+            periods=int(prediction_duration), freq=prediction_freq, include_history=False
         )
         forecast = self.model.predict(future)
         forecast["timestamp"] = forecast["ds"]

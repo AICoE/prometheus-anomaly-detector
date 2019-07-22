@@ -2,7 +2,7 @@ import datetime
 import logging
 import pandas as pd
 import numpy as np
-from metric import Metric
+from prometheus_api_client import Metric
 from numpy import fft
 
 # Set up logging

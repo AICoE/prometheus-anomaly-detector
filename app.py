@@ -7,10 +7,9 @@ import tornado.web
 import tornado
 from prometheus_client import Gauge, generate_latest, REGISTRY
 from apscheduler.schedulers.tornado import TornadoScheduler
-from prometheus_api_client import PrometheusConnect
+from prometheus_api_client import PrometheusConnect, Metric
 from configuration import Configuration
 import model
-from metric import Metric
 
 if os.getenv("FLT_DEBUG_MODE", "False") == "True":
     LOGGING_LEVEL = logging.DEBUG  # Enable Debug mode
