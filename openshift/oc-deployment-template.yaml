@@ -44,6 +44,10 @@ parameters:
   description: this will create a rolling data window on which the model will be trained. example: if set to 15d will train the model on past 15 days of data
   required: true
   value: "15d"
+- name: APP_FILE
+  description: "python application file name that will be run"
+  value: app.py
+  required: true
 
 objects:
 - apiVersion: v1
@@ -118,6 +122,8 @@ objects:
             value: "${FLT_ROLLING_DATA_WINDOW_SIZE}"
           - name: FLT_DEBUG_MODE
             value: "${FLT_DEBUG_MODE}"
+          - name: APP_FILE
+            value: "${APP_FILE}"
           image: ${APPLICATION_NAME}
           imagePullPolicy: IfNotPresent
           name: ${APPLICATION_NAME}
