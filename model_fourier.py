@@ -39,7 +39,8 @@ class MetricPredictor:
             phase = np.angle(frequency_domain[i])
             restored_signal += amplitude * np.cos(2 * np.pi * frequencies[i] * time_steps + phase)
 
-        return restored_signal + p[0] * time_steps
+        restored_signal = restored_signal + p[0] * time_steps
+        return restored_signal[n:]
 
     def train(self, metric_data, prediction_duration=15):
 
@@ -58,9 +59,9 @@ class MetricPredictor:
 
         # find most recent timestamp from original data and extrapolate new timestamps
         _LOGGER.debug("Creating Dummy Timestamps.....")
-        minimum_time = min(data["ds"])
+        maximum_time = max(data["ds"])
         dataframe_cols["timestamp"] = pd.date_range(
-            minimum_time, periods=len(forecast_values), freq="min"
+            maximum_time, periods=len(forecast_values), freq="min"
         )
 
         # create dummy upper and lower bounds
