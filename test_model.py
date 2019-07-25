@@ -115,7 +115,6 @@ for metric in METRICS_LIST:
     mlflow.log_param("retraining_interval_minutes", str(Configuration.retraining_interval_minutes))
     mlflow.log_param("rolling_data_window_size", str(Configuration.rolling_data_window_size))
     mlflow.log_param("true_anomaly_threshold", str(Configuration.true_anomaly_threshold))
-    mlflow.log_param("number of test data points", str(len(test_data_list)))
     
     # initial run with just the train data
     model_mp.train(train_data[0], Configuration.retraining_interval_minutes)
@@ -158,9 +157,9 @@ for metric in METRICS_LIST:
             true_values, Configuration.true_anomaly_threshold
         )
         
-        #Number of predicted and ground truth anomalies
-        predicted_anomalies = sum(model_mp.predicted_df["anomaly"])
-        ground_truth_anomalies = sum(true_values.metric_values["anomaly"])
+        #Total number of predicted and ground truth anomalies
+        sum_predicted_anomalies = sum(model_mp.predicted_df["anomaly"])
+        sum_ground_truth_anomalies = sum(true_values.metric_values["anomaly"])
 
         # Calculate accuracy
         accuracy = calculate_accuracy(
@@ -179,6 +178,7 @@ for metric in METRICS_LIST:
         MLFLOW_CLIENT.log_metric(mlflow_run_id, "Accuracy", accuracy, metric_timestamp, item)
         MLFLOW_CLIENT.log_metric(mlflow_run_id, "Ground truth anomalies", ground_truth_anomalies, metric_timestamp, item)
         MLFLOW_CLIENT.log_metric(mlflow_run_id, "Forecasted anomalies", predicted_anomalies, metric_timestamp, item)
+        MLFLOW_CLIENT.log_metric(mlflow_run_id, "Number of test data points", len(true_values.metric_values))
 
         # Only log non Nan values for the true_anomaly_postive_rate
         if true_positive_rate:
