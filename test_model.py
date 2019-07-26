@@ -176,8 +176,8 @@ for metric in METRICS_LIST:
         # log some accuracy metrics here
         MLFLOW_CLIENT.log_metric(mlflow_run_id, "RMSE", rmse, metric_timestamp, item)
         MLFLOW_CLIENT.log_metric(mlflow_run_id, "Accuracy", accuracy, metric_timestamp, item)
-        MLFLOW_CLIENT.log_metric(mlflow_run_id, "Ground truth anomalies", ground_truth_anomalies, metric_timestamp, item)
-        MLFLOW_CLIENT.log_metric(mlflow_run_id, "Forecasted anomalies", predicted_anomalies, metric_timestamp, item)
+        MLFLOW_CLIENT.log_metric(mlflow_run_id, "Ground truth anomalies", sum_ground_truth_anomalies, metric_timestamp, item)
+        MLFLOW_CLIENT.log_metric(mlflow_run_id, "Forecasted anomalies", sum_predicted_anomalies, metric_timestamp, item)
         MLFLOW_CLIENT.log_metric(mlflow_run_id, "Number of test data points", len(true_values.metric_values), metric_timestamp, item)
 
         # Only log non Nan values for the true_anomaly_postive_rate
