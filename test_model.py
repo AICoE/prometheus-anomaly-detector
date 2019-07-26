@@ -121,6 +121,9 @@ for metric in METRICS_LIST:
 
     # store the predicted dataframe
     predicted_df = model_mp.predicted_df
+    # track true_positives & ground truth anomalies
+    num_true_positives = 0
+    num_ground_truth_anomalies = 0
 
     for item in range(len(test_data_list) - 1):
         # the true values for this training period
@@ -156,10 +159,13 @@ for metric in METRICS_LIST:
         true_values.metric_values["anomaly"] = label_true_anomalies(
             true_values, Configuration.true_anomaly_threshold
         )
-        
         #Total number of predicted and ground truth anomalies
         sum_predicted_anomalies = sum(model_mp.predicted_df["anomaly"])
         sum_ground_truth_anomalies = sum(true_values.metric_values["anomaly"])
+
+        num_true_positives += sum((model_mp.predicted_df["anomaly"] == 1) &
+                                  (true_values.metric_values["anomaly"] == 1))
+        num_ground_truth_anomalies += sum_ground_truth_anomalies
 
         # Calculate accuracy
         accuracy = calculate_accuracy(
@@ -189,5 +195,11 @@ for metric in METRICS_LIST:
                 metric_timestamp,
                 item,
             )
+
+    # collect and log metrics for the entire test run
+    total_true_positive_rate = num_true_positives/num_ground_truth_anomalies
+    MLFLOW_CLIENT.log_metric(mlflow_run_id, "Total true positive rate", total_true_positive_rate, metric_timestamp)
+    MLFLOW_CLIENT.log_metric(mlflow_run_id, "Total true positive count", num_true_positives, metric_timestamp)
+    MLFLOW_CLIENT.log_metric(mlflow_run_id, "Total ground truth count", num_ground_truth_anomalies, metric_timestamp)
 
     mlflow.end_run()
