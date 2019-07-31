@@ -20,12 +20,12 @@ class MetricPredictor:
     def __init__(self, metric, rolling_data_window_size="10d"):
         self.metric = Metric(metric, rolling_data_window_size)
 
-    def train(self, metric_data, prediction_duration=15):
+    def train(self, metric_data=None, prediction_duration=15):
         prediction_freq = "1MIN"
         # convert incoming metric to Metric Object
-        self.metric = self.metric + Metric(
-            metric_data
-        )  # because the rolling_data_window_size is set, this df should not bloat
+        if metric_data:
+            # because the rolling_data_window_size is set, this df should not bloat
+            self.metric += Metric(metric_data)
 
         # Don't really need to store the model, as prophet models are not retrainable
         # But storing it as an example for other models that can be retrained
