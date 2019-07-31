@@ -42,13 +42,13 @@ class MetricPredictor:
         restored_signal = restored_signal + p[0] * time_steps
         return restored_signal[n:]
 
-    def train(self, metric_data, prediction_duration=15):
+    def train(self, metric_data=None, prediction_duration=15):
 
         prediction_range = prediction_duration
         # convert incoming metric to Metric Object
-        self.metric = self.metric + Metric(
-            metric_data
-        )  # because the rolling_data_window_size is set, this df should not bloat
+        if metric_data:
+            # because the rolling_data_window_size is set, this df should not bloat
+            self.metric += Metric(metric_data)
 
         data = self.metric.metric_values
         vals = np.array(data["y"].tolist())
