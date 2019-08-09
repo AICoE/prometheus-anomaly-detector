@@ -11,12 +11,6 @@ from prometheus_api_client import PrometheusConnect, Metric
 from configuration import Configuration
 import model
 
-if os.getenv("FLT_DEBUG_MODE", "False") == "True":
-    LOGGING_LEVEL = logging.DEBUG  # Enable Debug mode
-else:
-    LOGGING_LEVEL = logging.INFO
-# Log record format
-logging.basicConfig(format="%(asctime)s:%(levelname)s:%(name)s: %(message)s", level=LOGGING_LEVEL)
 # Set up logging
 _LOGGER = logging.getLogger(__name__)
 
@@ -33,7 +27,9 @@ for metric in METRICS_LIST:
     metric_init = pc.get_current_metric_value(metric_name=metric)
     for unique_metric in metric_init:
         PREDICTOR_MODEL_LIST.append(
-            model.MetricPredictor(unique_metric, Configuration.rolling_data_window_size)
+            model.MetricPredictor(
+                unique_metric, rolling_data_window_size=Configuration.rolling_training_window_size
+            )
         )
 
 # A gauge set for the predicted values
@@ -99,15 +95,16 @@ def train_model(initial_run=False):
     for predictor_model in PREDICTOR_MODEL_LIST:
         metric_to_predict = predictor_model.metric
 
-        data_start_time = str(Configuration.retraining_interval_minutes) + "m"
+        data_start_time = datetime.now() - Configuration.metric_chunk_size
         if initial_run:
-            data_start_time = Configuration.rolling_data_window_size
+            data_start_time = datetime.now() - Configuration.rolling_training_window_size
 
         # Download new metric data from prometheus
         new_metric_data = pc.get_metric_range_data(
             metric_name=metric_to_predict.metric_name,
             label_config=metric_to_predict.label_config,
-            start_time=(str(data_start_time)),
+            start_time=data_start_time,
+            end_time=datetime.now(),
         )[0]
 
         # Train the new model
