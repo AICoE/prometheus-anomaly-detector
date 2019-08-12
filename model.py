@@ -33,6 +33,10 @@ class MetricPredictor:
             daily_seasonality=True, weekly_seasonality=True, yearly_seasonality=True
         )
 
+        _LOGGER.info("training data range: %s - %s", self.metric.start_time, self.metric.end_time)
+        # _LOGGER.info("training data end time: %s", self.metric.end_time)
+        _LOGGER.debug("begin training")
+
         self.model.fit(self.metric.metric_values)
         future = self.model.make_future_dataframe(
             periods=int(prediction_duration), freq=prediction_freq, include_history=False
