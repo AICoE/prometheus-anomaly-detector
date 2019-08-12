@@ -44,6 +44,9 @@ class Configuration:
     # How often should the anomaly detector retrain the model (in minutes)
     retraining_interval_minutes = int(os.getenv("FLT_RETRAINING_INTERVAL_MINUTES", "120"))
     metric_chunk_size = parse_timedelta("now", str(retraining_interval_minutes) + "m")
+    
+    # uri for the mlflow tracking server
+    mlflow_tracking_uri = str(os.getenv("MLFLOW_TRACKING_URI"))
 
     _LOGGER.info("Metric data rolling training window size: %s", rolling_training_window_size)
     _LOGGER.info("Model retraining interval: %s minutes", retraining_interval_minutes)
