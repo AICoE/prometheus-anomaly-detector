@@ -9,7 +9,7 @@ metadata:
 
 parameters:
 - description: Application name
-  from: "experiment-run-[a-z0-9]{4}"
+  from: "experiment-run"
   generate: expression
   name: APPLICATION_NAME
   required: true
@@ -18,13 +18,6 @@ parameters:
   required: true
   # To use the internal host and port number to connect to the mlflow tracking server
   description: "URI to the MLFlow server. Only required if the MLFlow server is in another Namespace"
-- name: APP_IMAGE_URI
-  description: "Name of the application image to be pulled from the registry"
-  value: "mlflow-experiment-image"
-  required: true
-- name: APP_IMAGE_TAG
-  value: "latest"
-  required: true
 - name: LIMIT_CPU
   value: "2"
   description: "Limit number of CPUs allocated to the job"
@@ -54,9 +47,9 @@ parameters:
   description: "The duration of metric data that is collected and added to the training data every epoch"
   value: "60"
   required: true
-- name: FLT_ROLLING_DATA_WINDOW_SIZE
+- name: FLT_ROLLING_TRAINING_WINDOW_SIZE
   description: "a rolling data window on which the model will be trained"
-  value: "15d"
+  value: "2d"
   required: true
 - name: FLT_DEBUG_MODE
   description: "Enable Verbose logging"
@@ -64,11 +57,27 @@ parameters:
   required: false
 - name: APP_FILE
   description: "python application file name that will be run"
-  value: test_model.py
+  value: "test_model.py"
   required: true
 - name: NB_USER
   description: "Name of user that will be logged in mlflow"
   value: "unknown"
+  required: true
+- name: FLT_DATA_START_TIME
+  description: "w"
+  value: "3d"
+  required: true
+- name: FLT_DATA_END_TIME
+  description: "w"
+  value: "now"
+  required: true
+- name: FLT_TRUE_ANOMALY_THRESHOLD
+  description: "threshold value to calculate true anomalies using a linear function"
+  value: "0.001"
+  required: true
+- name: OC_APP_IMAGE_NAME
+  description: "Name of the application image to be pulled from the registry"
+  value: "prometheus-anomaly-detector-prophet-image"
   required: true
 
 objects:
@@ -78,7 +87,7 @@ objects:
     name: ${APPLICATION_NAME}
     labels:
       app: ${APPLICATION_NAME}
-      experiment: ${APP_IMAGE_URI}
+      experiment: ${OC_APP_IMAGE_NAME}
   spec:
     template:
       metadata:
@@ -86,7 +95,7 @@ objects:
       spec:
         containers:
         - name: ${APPLICATION_NAME}
-          image: ${APP_IMAGE_URI}:${APP_IMAGE_TAG}
+          image: ${OC_APP_IMAGE_NAME}
           imagePullPolicy: Always
           resources:
             requests:
@@ -108,10 +117,16 @@ objects:
             value: ${FLT_PROM_ACCESS_TOKEN}
           - name: FLT_METRICS_LIST
             value: ${FLT_METRICS_LIST}
-          - name: FLT_ROLLING_DATA_WINDOW_SIZE
-            value: ${FLT_ROLLING_DATA_WINDOW_SIZE}
+          - name: FLT_DATA_START_TIME
+            value: ${FLT_DATA_START_TIME}
+          - name: FLT_DATA_END_TIME
+            value: ${FLT_DATA_END_TIME}
+          - name: FLT_ROLLING_TRAINING_WINDOW_SIZE
+            value: ${FLT_ROLLING_TRAINING_WINDOW_SIZE}
           - name: FLT_RETRAINING_INTERVAL_MINUTES
             value: ${FLT_RETRAINING_INTERVAL_MINUTES}
+          - name: FLT_TRUE_ANOMALY_THRESHOLD
+            value: ${FLT_TRUE_ANOMALY_THRESHOLD}
           - name: FLT_DEBUG_MODE
             value: ${FLT_DEBUG_MODE}
         restartPolicy: OnFailure

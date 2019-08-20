@@ -5,11 +5,11 @@ labels:
   application: ${APPLICATION_NAME}
 
 metadata:
-  name: prometheus-anomaly-detector-model-test-bc
+  name: prometheus-anomaly-detector-image-bc
 
 parameters:
 - description: Application name
-  value: 'mlflow-experiment-image'
+  value: 'prometheus-anomaly-detector-prophet-image'
   name: APPLICATION_NAME
   required: true
 - name: GIT_URI
