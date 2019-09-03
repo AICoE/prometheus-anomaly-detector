@@ -1,0 +1,8 @@
+---
+- project:
+    check:
+      jobs:
+        - "thoth-coala"
+    gate:
+      jobs:
+        - "thoth-coala"
