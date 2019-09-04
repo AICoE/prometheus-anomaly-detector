@@ -44,5 +44,5 @@ The current setup is as follows:
     - `yhat` - Predicted time series value
     - `yhat_lower` - Lower bound of uncertainity interval
     - `yhat_upper` - Upper bound of uncertainity interval 
-- **Visualization** - Grafana dashboards are created to visualize the predicted  metrics.
+- **Visualization** - Grafana dashboards are created to visualize the predicted  metrics
 - **Alerts** - Prometheus alerts are configured based on predicted metric values
