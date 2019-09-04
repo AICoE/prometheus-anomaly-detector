@@ -46,3 +46,38 @@ The current setup is as follows:
     - `yhat_upper` - Upper bound of uncertainity interval 
 - **Visualization** - Grafana dashboards are created to visualize the predicted  metrics
 - **Alerts** - Prometheus alerts are configured based on predicted metric values
+
+# Model Testing
+For a given timeframe of a metric, with known anomalies, the PAD can be run in `test-mode` to check whether the models reported back these anomalies. The accuracy and performance of the models can then be logged as metrics to MLFlow for comparing the results. 
+
+## Test Configurations
+* `FLT_PROM_URL` - URL for the prometheus host, from where the metric data will be collected
+* `FLT_PROM_ACCESS_TOKEN` - OAuth token to be passed as a header, to connect to the prometheus host (Optional)
+* `FLT_METRICS_LIST` - List of metrics that are to be collected from prometheus and train the prophet model.
+<br> Example: `"up{app='openshift-web-console', instance='172.44.0.18:8443'}; up{app='openshift-web-console', instance='172.44.4.18:8443'}; es_process_cpu_percent{instance='172.44.17.134:30290'}"`, multiple metrics can be separated using a semi-colon `;`.
+<br>If one metric and label configuration matches more than one timeseries, all the timeseries matching the configuration will be collected.
+* `FLT_RETRAINING_INTERVAL_MINUTES` - This specifies the frequency of the model training, or how often the model is retrained. (Default: `15`)
+<br> Example: If this parameter is set to `15`, it will collect the past 15 minutes of metric data every 15 minutes and append it to the training dataframe.
+* `FLT_ROLLING_TRAINING_WINDOW_SIZE` - This parameter limits the size of the training dataframe to prevent Out of Memory errors. It can be set to the duration of data that should be stored in memory as dataframes. (Default `15d`)
+<br> Example: If set to `1d`, every time before training the model using the training dataframe, the metric data that is older than 1 day will be deleted.
+* `MLFLOW_TRACKING_URI` - URI for the MLFlow tracking server
+* `FLT_TRUE_ANOMALY_THRESHOLD` - Threshold value to calculate true anomalies using a linear function
+* `FLT_DATA_START_TIME` - This specifies the starting time of your metric data timeframe window
+* `FLT_DATA_END_TIME` - This specifies the ending time of your metric data timeframe window
+
+Environment variables are loaded from `.env`. `pipenv` will load these automatically. So make sure you execute everything via `pipenv install`.
+
+Configuration is currently done via environment variables. The configuration options are defined in `prometheus-anomaly-detector/test_configuration.py`.
+
+Once the environment variables are set, you can run the application locally as:
+
+```
+python test_model.py
+```
+
+You can also use the `Makefile` to run the application:
+```
+make run_test
+```
+
+You can now view the metrics being logged in your MLFlow tracking server UI.
