@@ -50,6 +50,11 @@ The current setup is as follows:
 # Model Testing
 For a given timeframe of a metric, with known anomalies, the PAD can be run in `test-mode` to check whether the models reported back these anomalies. The accuracy and performance of the models can then be logged as metrics to MLFlow for comparing the results. 
 
+MLflow is an open source platform to manage the ML lifecycle, including experimentation, reproducibility and deployment. It currently offers three components:
+![Screenshot from 2019-09-04 15-19-57](https://user-images.githubusercontent.com/7343099/64284396-87c4b300-cf27-11e9-8990-e4323a000d6a.png)
+
+MLFlow: https://mlflow.org/
+
 ## Test Configurations
 * `FLT_PROM_URL` - URL for the prometheus host, from where the metric data will be collected
 * `FLT_PROM_ACCESS_TOKEN` - OAuth token to be passed as a header, to connect to the prometheus host (Optional)
