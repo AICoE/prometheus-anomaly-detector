@@ -52,7 +52,6 @@ For a given timeframe of a metric, with known anomalies, the PAD can be run in `
 
 MLflow is an open source platform to manage the ML lifecycle, including experimentation, reproducibility and deployment. It currently offers three components:
 ![Screenshot from 2019-09-04 15-19-57](https://user-images.githubusercontent.com/7343099/64284396-87c4b300-cf27-11e9-8990-e4323a000d6a.png)
-
 MLFlow: https://mlflow.org/
 
 ## Test Configurations
@@ -86,3 +85,7 @@ make run_test
 ```
 
 You can now view the metrics being logged in your MLFlow tracking server UI.
+
+![Screenshot from 2019-09-04 15-27-36](https://user-images.githubusercontent.com/7343099/64284885-8e075f00-cf28-11e9-877c-ebe4e397d2fe.png)
+
+
