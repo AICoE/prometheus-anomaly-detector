@@ -14,7 +14,7 @@ The use case for this framework is to assist teams in real-time alerting of thei
 <br>If one metric and label configuration matches more than one timeseries, all the timeseries matching the configuration will be collected.
 * `FLT_RETRAINING_INTERVAL_MINUTES` - This specifies the frequency of the model training, or how often the model is retrained. (Default: `15`)
 <br> Example: If this parameter is set to `15`, it will collect the past 15 minutes of metric data every 15 minutes and append it to the training dataframe.
-* `FLT_ROLLING_DATA_WINDOW_SIZE` - This parameter limits the size of the training dataframe to prevent Out of Memory errors. It can be set to the duration of data that should be stored in memory as dataframes. (Default `15d`)
+* `FLT_ROLLING_TRAINING_WINDOW_SIZE` - This parameter limits the size of the training dataframe to prevent Out of Memory errors. It can be set to the duration of data that should be stored in memory as dataframes. (Default `15d`)
 <br> Example: If set to `1d`, every time before training the model using the training dataframe, the metric data that is older than 1 day will be deleted.
 
 If you are testing locally, you can do the following:
@@ -35,7 +35,7 @@ make run_app
 
 ## Implementation
 The current setup is as follows:
-![Screenshot from 2019-09-04 12-25-20](https://user-images.githubusercontent.com/7343099/64273556-8be4d680-cf0f-11e9-89de-d54e6e4b888b.png)
+![Screenshot from 2019-09-04 14-40-34](https://user-images.githubusercontent.com/7343099/64281826-ff8fdf00-cf21-11e9-9258-d39647216062.png)
 
 - **Data** - Prometheus metrics scraped from specified hosts/targets
 - **Models being trained** -
