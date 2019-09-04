@@ -47,6 +47,8 @@ The current setup is as follows:
 - **Visualization** - Grafana dashboards are created to visualize the predicted  metrics
 - **Alerts** - Prometheus alerts are configured based on predicted metric values
 
+![Screenshot from 2019-09-04 16-09-54](https://user-images.githubusercontent.com/7343099/64287763-906cb780-cf2e-11e9-9179-d546fb8ee110.png)
+
 # Model Testing
 For a given timeframe of a metric, with known anomalies, the PAD can be run in `test-mode` to check whether the models reported back these anomalies. The accuracy and performance of the models can then be logged as metrics to MLFlow for comparing the results. 
 
