@@ -40,7 +40,9 @@ The current setup is as follows:
 - Data - Prometheus metrics scraped from specified hosts/targets
 - Models being trained -
   - Fourier - It is used to map signals from the time domain to the frequency domain. It represents periodic time series data as a sum of sinusoidal components (sine and cosine)
-  - Prophet - Procedure developed by Facebook for forecasting time series data based on an additive model where non-linear trends are fit with yearly, weekly, and daily seasonality, plus holiday effects. It works best with time series that have strong seasonal effects and several seasons of historical data.
-https://facebook.github.io/prophet/
+  - Prophet[https://facebook.github.io/prophet/] - Procedure developed by Facebook for forecasting time series data based on an additive model where non-linear trends are fit with yearly, weekly, and daily seasonality, plus holiday effects. It works best with time series that have strong seasonal effects and several seasons of historical data. The following are the forecasted values:
+    - `yhat` - Predicted time series value
+    - `yhat_lower` - Lower bound of uncertainity interval
+    - `yhat_upper` - Upper bound of uncertainity interval 
 - Visualization - Grafana dashboards are created to visualize the predicted  metrics.
 - Alerts - Prometheus alerts are configured based on predicted metric values
