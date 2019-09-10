@@ -35,7 +35,7 @@ make run_app
 
 ## Implementation
 The current setup is as follows:
-![Screenshot from 2019-09-04 14-40-34](https://user-images.githubusercontent.com/7343099/64281826-ff8fdf00-cf21-11e9-9258-d39647216062.png)
+![Thoth Dgraph anomaly detection - blog post (1)](https://user-images.githubusercontent.com/7343099/64648192-7298ca00-d3e8-11e9-9b9a-f7e4e8b2d671.jpg)
 
 - **Data** - Prometheus metrics scraped from specified hosts/targets
 - **Models being trained** -
@@ -47,7 +47,7 @@ The current setup is as follows:
 - **Visualization** - Grafana dashboards are created to visualize the predicted  metrics
 - **Alerts** - Prometheus alerts are configured based on predicted metric values
 
-![Screenshot from 2019-09-04 16-09-54](https://user-images.githubusercontent.com/7343099/64287763-906cb780-cf2e-11e9-9179-d546fb8ee110.png)
+![Thoth Dgraph anomaly detection - blog post (2)](https://user-images.githubusercontent.com/7343099/64648315-a8d64980-d3e8-11e9-8d37-8e5b3c132c7b.jpg)
 
 # Model Testing
 For a given timeframe of a metric, with known anomalies, the PAD can be run in `test-mode` to check whether the models reported back these anomalies. The accuracy and performance of the models can then be logged as metrics to MLFlow for comparing the results. 
