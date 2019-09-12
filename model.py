@@ -1,3 +1,4 @@
+"""doctsring for packages."""
 import datetime
 import logging
 import pandas
@@ -18,9 +19,11 @@ class MetricPredictor:
     metric = None
 
     def __init__(self, metric, rolling_data_window_size="10d"):
+        """Initialize the Metric object."""
         self.metric = Metric(metric, rolling_data_window_size)
 
     def train(self, metric_data=None, prediction_duration=15):
+        """Train the Prophet model and store the predictions in predicted_df."""
         prediction_freq = "1MIN"
         # convert incoming metric to Metric Object
         if metric_data:
@@ -33,13 +36,17 @@ class MetricPredictor:
             daily_seasonality=True, weekly_seasonality=True, yearly_seasonality=True
         )
 
-        _LOGGER.info("training data range: %s - %s", self.metric.start_time, self.metric.end_time)
+        _LOGGER.info(
+            "training data range: %s - %s", self.metric.start_time, self.metric.end_time
+        )
         # _LOGGER.info("training data end time: %s", self.metric.end_time)
         _LOGGER.debug("begin training")
 
         self.model.fit(self.metric.metric_values)
         future = self.model.make_future_dataframe(
-            periods=int(prediction_duration), freq=prediction_freq, include_history=False
+            periods=int(prediction_duration),
+            freq=prediction_freq,
+            include_history=False,
         )
         forecast = self.model.predict(future)
         forecast["timestamp"] = forecast["ds"]
@@ -49,8 +56,8 @@ class MetricPredictor:
         _LOGGER.debug(forecast)
 
     def predict_value(self, prediction_datetime):
-        """
-        This function returns the predicted value of the metric for the prediction_datetime
-        """
-        nearest_index = self.predicted_df.index.get_loc(prediction_datetime, method="nearest")
+        """Return the predicted value of the metric for the prediction_datetime."""
+        nearest_index = self.predicted_df.index.get_loc(
+            prediction_datetime, method="nearest"
+        )
         return self.predicted_df.iloc[[nearest_index]]

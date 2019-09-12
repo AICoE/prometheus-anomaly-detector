@@ -1,15 +1,16 @@
-name: prophet-env
-channels:
-  - conda-forge
-dependencies:
-  - python=3.6
-  - pip
-  - fbprophet
-  - pip:
-    - pandas
-    - apscheduler
-    - prometheus_client
-    - prometheus_api_client>=0.0.2b2
-    - tornado
-    - dateparser
-    - mlflow
+---
+- name: prophet-env
+  channels:
+    - conda-forge
+  dependencies:
+    - python=3.6
+    - pip
+    - fbprophet
+    - pip:
+        - pandas
+        - apscheduler
+        - prometheus_client
+        - prometheus_api_client>=0.0.2b2
+        - tornado
+        - dateparser
+        - mlflow
