@@ -1,4 +1,3 @@
-"""docstring for installed packages."""
 import logging
 import numpy as np
 from prometheus_api_client import PrometheusConnect, MetricsList, Metric
@@ -12,39 +11,31 @@ import model
 # Set up logging
 _LOGGER = logging.getLogger(__name__)
 
-MLFLOW_CLIENT = mlflow.tracking.MlflowClient(
-    tracking_uri=Configuration.mlflow_tracking_uri
-)
+MLFLOW_CLIENT = mlflow.tracking.MlflowClient(tracking_uri=Configuration.mlflow_tracking_uri)
 
 METRICS_LIST = Configuration.metrics_list
 
 # Prometheus Connection details
 pc = PrometheusConnect(
-    url=Configuration.prometheus_url,
-    headers=Configuration.prom_connect_headers,
-    disable_ssl=True,
+    url=Configuration.prometheus_url, headers=Configuration.prom_connect_headers, disable_ssl=True
 )
 
 
 def calculate_rmse(predicted, true):
-    """Calculate the Root Mean Squared Error (RMSE) between the predicted and true values."""
     return (((predicted - true) ** 2).mean()) ** 0.5
 
 
 def calculate_accuracy(predicted, true):
-    """Calculate the accuracy of the predictions."""
     return (1 - sum(abs(predicted - true)) / len(true)) * 100
 
 
 def label_true_anomalies(true_value_df, threshold_value):
-    """Label the true anomalies."""
     # label true anomalies based on a simple linear threshold,
     # can be replaced with a more complex calculation based on metric data
     return np.where(true_value_df["y"] > threshold_value, 1, 0)
 
 
 def label_predicted_anomalies(true_value_df, predicted_value_df):
-    """Label the predicted anomalies."""
     return np.where(
         (
             ((true_value_df["y"] >= predicted_value_df["yhat_upper"]))
@@ -56,10 +47,8 @@ def label_predicted_anomalies(true_value_df, predicted_value_df):
 
 
 def compute_true_positive_rate(forecasted_anomalies, labeled_anomalies):
-    """Calculate the true positive rate."""
-    num_true_positive = sum(
-        (forecasted_anomalies.values == 1) & (labeled_anomalies.values == 1)
-    )
+
+    num_true_positive = sum((forecasted_anomalies.values == 1) & (labeled_anomalies.values == 1))
     true_postive_rate = num_true_positive / sum(labeled_anomalies.values)
 
     return true_postive_rate
@@ -102,8 +91,7 @@ for metric in METRICS_LIST:
     _LOGGER.info("Downloaded metric data")
 
     model_mp = model.MetricPredictor(
-        train_data[0],
-        rolling_data_window_size=Configuration.rolling_training_window_size,
+        train_data[0], rolling_data_window_size=Configuration.rolling_training_window_size
     )
 
     mlflow.set_experiment(train_data[0].metric_name)
@@ -121,15 +109,11 @@ for metric in METRICS_LIST:
     mlflow.set_tag("metric", metric)
 
     # log parameters before run
-    mlflow.log_param(
-        "retraining_interval_minutes", str(Configuration.retraining_interval_minutes)
-    )
+    mlflow.log_param("retraining_interval_minutes", str(Configuration.retraining_interval_minutes))
     mlflow.log_param(
         "rolling_training_window_size", str(Configuration.rolling_training_window_size)
     )
-    mlflow.log_param(
-        "true_anomaly_threshold", str(Configuration.true_anomaly_threshold)
-    )
+    mlflow.log_param("true_anomaly_threshold", str(Configuration.true_anomaly_threshold))
 
     # initial run with just the train data
     model_mp.train(prediction_duration=Configuration.retraining_interval_minutes)
@@ -139,9 +123,7 @@ for metric in METRICS_LIST:
     true_df = Metric(test_data_list[0]).metric_values.set_index("ds")
 
     # Label True Anomalies
-    true_df["anomaly"] = label_true_anomalies(
-        true_df, Configuration.true_anomaly_threshold
-    )
+    true_df["anomaly"] = label_true_anomalies(true_df, Configuration.true_anomaly_threshold)
 
     # track true_positives & ground truth anomalies
     num_true_positives = 0
@@ -182,15 +164,13 @@ for metric in METRICS_LIST:
         sum_ground_truth_anomalies = sum(true_values.metric_values["anomaly"])
 
         num_true_positives += sum(
-            (model_mp.predicted_df["anomaly"] == 1)
-            & (true_values.metric_values["anomaly"] == 1)
+            (model_mp.predicted_df["anomaly"] == 1) & (true_values.metric_values["anomaly"] == 1)
         )
         num_ground_truth_anomalies += sum_ground_truth_anomalies
 
         # Calculate accuracy
         accuracy = calculate_accuracy(
-            model_mp.predicted_df["anomaly"].values,
-            true_values.metric_values["anomaly"].values,
+            model_mp.predicted_df["anomaly"].values, true_values.metric_values["anomaly"].values
         )
         # Calculate RMSE
         rmse = calculate_rmse(model_mp.predicted_df.yhat, true_values.metric_values.y)
@@ -202,9 +182,7 @@ for metric in METRICS_LIST:
 
         # log some accuracy metrics here
         MLFLOW_CLIENT.log_metric(mlflow_run_id, "RMSE", rmse, metric_timestamp, item)
-        MLFLOW_CLIENT.log_metric(
-            mlflow_run_id, "Accuracy", accuracy, metric_timestamp, item
-        )
+        MLFLOW_CLIENT.log_metric(mlflow_run_id, "Accuracy", accuracy, metric_timestamp, item)
 
         MLFLOW_CLIENT.log_metric(
             mlflow_run_id,
@@ -214,11 +192,7 @@ for metric in METRICS_LIST:
             item,
         )
         MLFLOW_CLIENT.log_metric(
-            mlflow_run_id,
-            "Forecasted anomalies",
-            sum_predicted_anomalies,
-            metric_timestamp,
-            item,
+            mlflow_run_id, "Forecasted anomalies", sum_predicted_anomalies, metric_timestamp, item
         )
         MLFLOW_CLIENT.log_metric(
             mlflow_run_id,
@@ -245,19 +219,13 @@ for metric in METRICS_LIST:
         total_true_positive_rate = num_true_positives / num_ground_truth_anomalies
 
     MLFLOW_CLIENT.log_metric(
-        mlflow_run_id,
-        "Total true positive rate",
-        total_true_positive_rate,
-        metric_timestamp,
+        mlflow_run_id, "Total true positive rate", total_true_positive_rate, metric_timestamp
     )
     MLFLOW_CLIENT.log_metric(
         mlflow_run_id, "Total true positive count", num_true_positives, metric_timestamp
     )
     MLFLOW_CLIENT.log_metric(
-        mlflow_run_id,
-        "Total ground truth count",
-        num_ground_truth_anomalies,
-        metric_timestamp,
+        mlflow_run_id, "Total ground truth count", num_ground_truth_anomalies, metric_timestamp
     )
 
     mlflow.end_run()
