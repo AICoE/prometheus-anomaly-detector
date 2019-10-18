@@ -8,9 +8,9 @@ dependencies:
   - fbprophet
   - pip:
       - pandas
-      - apscheduler
+      - schedule
       - prometheus_client
-      - prometheus_api_client>=0.0.2b2
+      - prometheus_api_client
       - tornado
       - dateparser
       - mlflow
