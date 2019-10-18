@@ -7,10 +7,10 @@ dependencies:
   - pip
   - fbprophet
   - pip:
-    - pandas
-    - apscheduler
-    - prometheus_client
-    - prometheus_api_client>=0.0.2b2
-    - tornado
-    - dateparser
-    - mlflow
+      - pandas
+      - apscheduler
+      - prometheus_client
+      - prometheus_api_client>=0.0.2b2
+      - tornado
+      - dateparser
+      - mlflow
