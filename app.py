@@ -3,31 +3,35 @@ import time
 import os
 import logging
 from datetime import datetime
+from multiprocessing import Process, Queue
+from queue import Empty as EmptyQueueException
 import tornado.ioloop
 import tornado.web
-import tornado
 from prometheus_client import Gauge, generate_latest, REGISTRY
-from apscheduler.schedulers.tornado import TornadoScheduler
 from prometheus_api_client import PrometheusConnect, Metric
 from configuration import Configuration
 import model
+import schedule
 
 # Set up logging
 _LOGGER = logging.getLogger(__name__)
 
 METRICS_LIST = Configuration.metrics_list
 
+# list of ModelPredictor Objects shared between processes
+PREDICTOR_MODEL_LIST = list()
 
-PREDICTOR_MODEL_LIST = []
 
 pc = PrometheusConnect(
     url=Configuration.prometheus_url,
     headers=Configuration.prom_connect_headers,
     disable_ssl=True,
 )
+
 for metric in METRICS_LIST:
     # Initialize a predictor for all metrics first
     metric_init = pc.get_current_metric_value(metric_name=metric)
+
     for unique_metric in metric_init:
         PREDICTOR_MODEL_LIST.append(
             model.MetricPredictor(
@@ -53,10 +57,18 @@ for predictor in PREDICTOR_MODEL_LIST:
 class MainHandler(tornado.web.RequestHandler):
     """Tornado web request handler."""
 
+    def initialize(self, data_queue):
+        """Check if new predicted values are available in the queue before the get request."""
+        try:
+            model_list = data_queue.get_nowait()
+            self.settings["model_list"] = model_list
+        except EmptyQueueException:
+            pass
+
     async def get(self):
         """Fetch and publish metric values asynchronously."""
         # update metric value on every request and publish the metric
-        for predictor_model in PREDICTOR_MODEL_LIST:
+        for predictor_model in self.settings["model_list"]:
             # get the current metric value so that it can be compared with the
             # predicted values
             current_metric_value = Metric(
@@ -66,8 +78,8 @@ class MainHandler(tornado.web.RequestHandler):
                 )[0]
             )
 
-            prediction = predictor_model.predict_value(datetime.now())
             metric_name = predictor_model.metric.metric_name
+            prediction = predictor_model.predict_value(datetime.now())
 
             # Check for all the columns available in the prediction
             # and publish the values for each of them
@@ -95,17 +107,21 @@ class MainHandler(tornado.web.RequestHandler):
         self.set_header("Content-Type", "text; charset=utf-8")
 
 
-def make_app():
+def make_app(data_queue):
     """Initialize the tornado web app."""
     _LOGGER.info("Initializing Tornado Web App")
-    return tornado.web.Application([(r"/metrics", MainHandler), (r"/", MainHandler)])
+    return tornado.web.Application(
+        [
+            (r"/metrics", MainHandler, dict(data_queue=data_queue)),
+            (r"/", MainHandler, dict(data_queue=data_queue)),
+        ]
+    )
 
 
-def train_model(initial_run=False):
+def train_model(initial_run=False, data_queue=None):
     """Train the machine learning model."""
     for predictor_model in PREDICTOR_MODEL_LIST:
         metric_to_predict = predictor_model.metric
-
         data_start_time = datetime.now() - Configuration.metric_chunk_size
         if initial_run:
             data_start_time = (
@@ -132,20 +148,34 @@ def train_model(initial_run=False):
             metric_to_predict.label_config,
         )
 
+    data_queue.put(PREDICTOR_MODEL_LIST)
+
 
 if __name__ == "__main__":
-    # Initial run to generate metrics, before they are exposed
-    train_model(initial_run=True)
+    # Queue to share data between the tornado server and the model training
+    predicted_model_queue = Queue()
 
-    # Start up the server to expose the metrics.
-    app = make_app()
+    # Initial run to generate metrics, before they are exposed
+    train_model(initial_run=True, data_queue=predicted_model_queue)
+
+    # Set up the tornado web app
+    app = make_app(predicted_model_queue)
     app.listen(8080)
-    scheduler = TornadoScheduler()
+    server_process = Process(target=tornado.ioloop.IOLoop.instance().start)
+    # Start up the server to expose the metrics.
+    server_process.start()
+
+    # Schedule the model training
+    schedule.every(Configuration.retraining_interval_minutes).minutes.do(
+        train_model, initial_run=False, data_queue=predicted_model_queue
+    )
     _LOGGER.info(
         "Will retrain model every %s minutes", Configuration.retraining_interval_minutes
     )
-    scheduler.add_job(
-        train_model, "interval", minutes=Configuration.retraining_interval_minutes
-    )
-    scheduler.start()
-    tornado.ioloop.IOLoop.instance().start()
+
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
+
+    # join the server process in case the main process ends
+    server_process.join()
