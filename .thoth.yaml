@@ -1,4 +1,5 @@
-host: 'khemenu.thoth-station.ninja'
+---
+host: '{THOTH_HOST}'
 tls_verify: false
 requirements_format: pipenv
 
