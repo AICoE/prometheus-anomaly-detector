@@ -32,9 +32,10 @@ class MetricPredictor:
         self.metric = Metric(metric, rolling_data_window_size)
 
 
-    def sarima_exploration(self, input, range, freq):
 
-        model = SARIMAX(input, order=(1, 2, 2), seasonal_order=(2, 2, 2, freq), enforce_stationarity=True,
+    def sarima_exploration(self, input, range, freq, p, q, d, P, Q, D):
+
+        model = SARIMAX(input, order=(p, d, q), seasonal_order=(P, D, Q, freq), enforce_stationarity=True,
                         enforce_invertibility=False)
         model_fit = model.fit(dsip=-1)
         forecast = model_fit.forecast(range)
@@ -110,7 +111,7 @@ class MetricPredictor:
                 mlflow.log_artifact(fig2_fn)  # logging to mlflow
                 plt.close()
 
-    def train(self, metric_data=None, prediction_duration=15, freq="15Min"):
+    def train(self, metric_data=None, prediction_duration=15, freq="15Min", p,d,q, P,D,Q):
         """Train the Prophet model and store the predictions in predicted_df."""
         sfrequency = 96
         if freq == '1h':
@@ -134,7 +135,7 @@ class MetricPredictor:
         _LOGGER.debug("begin training")
 
         forecast_values = self.sarima_exploration(
-            vals, prediction_duration, sfrequency
+            vals, prediction_duration, sfrequency, p,d,q,P,D,Q
         )
 
         dataframe_cols = {}
