@@ -2,6 +2,10 @@ import os
 import time
 import logging
 import numpy as np
+import mlflow
+import mlflow.sklearn
+from itertools import product
+
 from prometheus_api_client import Metric
 from statsmodels.tsa.stattools import adfuller
 from statsmodels.tsa.seasonal import seasonal_decompose
@@ -36,6 +40,75 @@ class MetricPredictor:
         forecast = model_fit.forecast(range)
         return forecast
 
+    def _mlflow_sarima(self, train, test):
+        mlflow.set_experiment("/Shared/experiments/cryptocurrency/analysis-forecasting-2")
+        Qs = range(0, 4)
+        qs = range(0, 5)
+        Ps = range(0, 6)
+        ps = range(0, 6)
+        D = 2
+        d = 2
+        parameters = product(ps, qs, Ps, Qs)
+        parameters_list = list(parameters)
+        len(parameters_list)
+
+        results = []
+        best_aic = float("inf")
+        warnings.filterwarnings('ignore')
+        for param in parameters_list:
+            with mlflow.start_run(run_name='SARIMAX_param'):
+                mlflow.log_param('order-Qs', param[0])
+                mlflow.log_param('order-qs', param[1])
+                mlflow.log_param('seasonal-order-Ps', param[2])
+                mlflow.log_param('seasonal-order-ps', param[3])
+
+                try:
+                    model = SARIMAX(train, order=(param[0], d, param[1]),
+                                    seasonal_order=(param[2], D, param[3], 24)).fit(disp=-1)
+
+                except ValueError:
+                    print('bad parameter combination:', param)
+                    continue
+
+                aic = model.aic
+                if aic < best_aic:
+                    best_model = model
+                    best_aic = aic
+                    best_param = param
+                results.append([param, model.aic])
+
+                # log metric
+                mlflow.log_metric('aic', aic)
+                mlflow.log_metric('dickey-fuller-test', adfuller(model.resid[13:])[1])
+
+                # log artifact: model summary
+                plt.rc('figure', figsize=(12, 7))
+                plt.text(0.01, 0.05, str(model.summary()), {'fontsize': 10}, fontproperties='monospace')
+                plt.axis('off')
+                plt.tight_layout()
+                summary_fn = 'model_sarimax_summary_{}_{}_{}_{}.png'.format(param[0], param[1], param[2], param[3])
+                plt.savefig(summary_fn)
+                mlflow.log_artifact(summary_fn)  # logging to mlflow
+                plt.close()
+
+                # log artifact: diagnostics plot
+                model.plot_diagnostics(figsize=(15, 12))
+                fig1_fn = 'figure_diagnostics_{}_{}_{}_{}.png'.format(param[0], param[1], param[2], param[3])
+                plt.savefig(fig1_fn)
+                mlflow.log_artifact(fig1_fn)  # logging to mlflow
+                plt.close()
+
+                # log artifact: residuals and pacf plot
+                plt.subplot(211)
+                model.resid[13:].plot()
+                plt.ylabel(u'Residuals')
+                ax = plt.subplot(212)
+                plot_acf(model.resid[13:].values.squeeze(), lags=12, ax=ax)
+                plt.tight_layout()
+                fig2_fn = 'figure_res_pacf_{}_{}_{}_{}.png'.format(param[0], param[1], param[2], param[3])
+                plt.savefig(fig2_fn)
+                mlflow.log_artifact(fig2_fn)  # logging to mlflow
+                plt.close()
 
     def train(self, metric_data=None, prediction_duration=15, freq="15Min"):
         """Train the Prophet model and store the predictions in predicted_df."""
