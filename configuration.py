@@ -1,7 +1,7 @@
 """docstring for installed packages."""
 import os
 import logging
-from prometheus_api_client.utils import parse_datetime, parse_timedelta
+from prometheus_api_client.utils import parse_timedelta
 
 if os.getenv("FLT_DEBUG_MODE", "False") == "True":
     LOGGING_LEVEL = logging.DEBUG  # Enable Debug mode

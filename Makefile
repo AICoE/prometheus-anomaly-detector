@@ -77,3 +77,7 @@ run_app:
 
 run_test:
 	python test_model.py
+
+test:
+	py.test --cov=prometheus_anomaly_detector -sv tests \
+	--ignore=tests/test_model.py

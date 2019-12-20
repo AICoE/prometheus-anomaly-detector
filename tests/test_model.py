@@ -1,13 +1,18 @@
 """docstring for installed packages."""
 import logging
-import numpy as np
+from prometheus_anomaly_detector.utils import (
+    calculate_rmse,
+    calculate_accuracy,
+    label_true_anomalies,
+    label_predicted_anomalies,
+    compute_true_positive_rate,
+    NaN,
+)
 from prometheus_api_client import PrometheusConnect, MetricsList, Metric
 from test_configuration import Configuration
 import mlflow
-
 # import model_fourier as model
-import model
-
+import prometheus_anomaly_detector.model as model
 
 # Set up logging
 _LOGGER = logging.getLogger(__name__)
@@ -24,45 +29,6 @@ pc = PrometheusConnect(
     headers=Configuration.prom_connect_headers,
     disable_ssl=True,
 )
-
-
-def calculate_rmse(predicted, true):
-    """Calculate the Root Mean Squared Error (RMSE) between the predicted and true values."""
-    return (((predicted - true) ** 2).mean()) ** 0.5
-
-
-def calculate_accuracy(predicted, true):
-    """Calculate the accuracy of the predictions."""
-    return (1 - sum(abs(predicted - true)) / len(true)) * 100
-
-
-def label_true_anomalies(true_value_df, threshold_value):
-    """Label the true anomalies."""
-    # label true anomalies based on a simple linear threshold,
-    # can be replaced with a more complex calculation based on metric data
-    return np.where(true_value_df["y"] > threshold_value, 1, 0)
-
-
-def label_predicted_anomalies(true_value_df, predicted_value_df):
-    """Label the predicted anomalies."""
-    return np.where(
-        (
-            ((true_value_df["y"] >= predicted_value_df["yhat_upper"]))
-            | (true_value_df["y"] <= predicted_value_df["yhat_lower"])
-        ),
-        1,
-        0,
-    )
-
-
-def compute_true_positive_rate(forecasted_anomalies, labeled_anomalies):
-    """Calculate the true positive rate."""
-    num_true_positive = sum(
-        (forecasted_anomalies.values == 1) & (labeled_anomalies.values == 1)
-    )
-    true_postive_rate = num_true_positive / sum(labeled_anomalies.values)
-
-    return true_postive_rate
 
 
 # Run for every metric defined in the METRICS_LIST
@@ -239,7 +205,8 @@ for metric in METRICS_LIST:
             )
 
     # collect and log metrics for the entire test run
-    total_true_positive_rate = np.nan
+    total_true_positive_rate = NaN
+
     if num_ground_truth_anomalies:
         # check if num_ground_truth_anomalies is not 0 to avoid division by zero errors
         total_true_positive_rate = num_true_positives / num_ground_truth_anomalies

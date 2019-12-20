@@ -1,6 +1,5 @@
 """docstring for packages."""
 import time
-import os
 import logging
 from datetime import datetime
 from multiprocessing import Process, Queue
@@ -10,7 +9,7 @@ import tornado.web
 from prometheus_client import Gauge, generate_latest, REGISTRY
 from prometheus_api_client import PrometheusConnect, Metric
 from configuration import Configuration
-import model
+import prometheus_anomaly_detector.model as model
 import schedule
 
 # Set up logging

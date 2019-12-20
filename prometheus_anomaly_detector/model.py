@@ -1,7 +1,5 @@
 """doctsring for packages."""
-import datetime
 import logging
-import pandas
 from fbprophet import Prophet
 from prometheus_api_client import Metric
 
