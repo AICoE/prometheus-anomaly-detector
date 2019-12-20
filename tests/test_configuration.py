@@ -2,6 +2,8 @@
 import os
 import logging
 from prometheus_api_client.utils import parse_datetime, parse_timedelta
+from datetime import datetime
+
 
 if os.getenv("FLT_DEBUG_MODE", "False") == "True":
     LOGGING_LEVEL = logging.DEBUG  # Enable Debug mode
@@ -13,6 +15,13 @@ logging.basicConfig(
 )
 # set up logging
 _LOGGER = logging.getLogger(__name__)
+
+
+def test_metric_time_range(metric_start_time_fixture, metric_end_time_fixture):
+
+    assert isinstance(metric_start_time_fixture, datetime)
+    assert isinstance(metric_end_time_fixture, datetime)
+    assert metric_start_time_fixture < metric_end_time_fixture
 
 
 class Configuration:
