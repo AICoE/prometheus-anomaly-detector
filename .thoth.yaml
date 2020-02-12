@@ -18,3 +18,7 @@ managers:
   - name: thoth-provenance
     configuration:
       labels: [bot, kebechet]
+  - name: update
+    configuration:
+      labels: [bot]
+  - name: info
