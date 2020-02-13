@@ -12,6 +12,7 @@ tornado = "*"
 fbprophet = "*"
 dateparser = "*"
 mlflow = "*"
+holidays = "==0.9.12"
 
 [requires]
 python_version = "3.6"
