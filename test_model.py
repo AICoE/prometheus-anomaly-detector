@@ -47,8 +47,8 @@ def label_predicted_anomalies(true_value_df, predicted_value_df):
     """Label the predicted anomalies."""
     return np.where(
         (
-            ((true_value_df["y"] >= predicted_value_df["yhat_upper"]))
-            | (true_value_df["y"] <= predicted_value_df["yhat_lower"])
+            ((true_value_df["y"].values >= predicted_value_df["yhat_upper"].values))
+            | (true_value_df["y"].values <= predicted_value_df["yhat_lower"].values)
         ),
         1,
         0,
