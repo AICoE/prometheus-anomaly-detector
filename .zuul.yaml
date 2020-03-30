@@ -6,3 +6,6 @@
     gate:
       jobs:
         - "thoth-coala"
+    kebechet-auto-gate:
+      jobs:
+        - "thoth-coala"
