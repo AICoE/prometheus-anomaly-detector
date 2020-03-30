@@ -361,11 +361,12 @@
         },
         "mlflow": {
             "hashes": [
-                "sha256:0070b0a3b12c691affcc3d48855b9765f149823025315f583b6b33dda3e17f28",
-                "sha256:87c493aeed3a90d324d9acefe480b3edc121fc9aa1a40d0116fea7275b74f573"
+                "sha256:0748a553cdcd3c381d6f42d7b5b5ed1eba2b9419d8d1265e101027a94edb0a9c",
+                "sha256:46ebb706545c555d04aa93c340f8822a355e1f11cfd63dfa825afa8c55a07535",
+                "sha256:c56cef8531e54c0595961dd5d479c68a79775a3c1e3f24a528f4b4c727f8b24e"
             ],
             "index": "pypi",
-            "version": "==1.6.0"
+            "version": "==1.7.2"
         },
         "numpy": {
             "hashes": [
