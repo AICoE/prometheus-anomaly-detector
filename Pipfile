@@ -13,6 +13,9 @@ fbprophet = "*"
 dateparser = "*"
 mlflow = "*"
 holidays = "==0.9.12"
+keras = "*"
+numpy = "*" 
+scikit-learn = "*"
 
 [requires]
 python_version = "3.6"
