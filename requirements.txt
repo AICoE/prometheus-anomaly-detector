@@ -1,7 +1,11 @@
-pandas
-schedule
+pandas~=1.0.3
+schedule~=0.6.0
 prometheus_client
 prometheus_api_client
-tornado
-fbprophet
-mlflow
+tornado~=6.0.4
+fbprophet~=0.6
+mlflow~=1.7.2
+
+numpy~=1.18.3
+Keras~=2.3.1
+scikit-learn~=0.22.2.post1
