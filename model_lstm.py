@@ -90,15 +90,15 @@ class MetricPredictor:
         )
         # _LOGGER.info("training data end time: %s", self.metric.end_time)
         _LOGGER.debug("begin training")
-        data_x, data_y = self.prepare_data(self.metric.metric_values.values)
+        data_x, data_y = self.prepare_data(metric_values_np)
         _LOGGER.debug(data_x.shape)
-        model.compile(loss='mean_squared_error', optimizer='adam')
-        model.fit(data_x, data_y, epochs=50, batch_size=512)
+        self.model.compile(loss='mean_squared_error', optimizer='adam')
+        self.model.fit(data_x, data_y, epochs=50, batch_size=512)
 
         data_test = metric_values_np[-self.number_of_features:, 1]
         forecast_values = []
         for i in range(int(prediction_duration)):
-            forecast_values.append(model.predict(data_test.reshape(1, 1, self.number_of_features)).flatten()[0])
+            forecast_values.append(self.scaler.inverse_transform(self.model.predict(data_test.reshape(1,1,self.number_of_features))).flatten()[0])
             np.roll(data_test, -1)
             data_test[-1] = forecast_values[-1]
 
