@@ -98,9 +98,10 @@ class MetricPredictor:
         data_test = metric_values_np[-self.number_of_features:, 1]
         forecast_values = []
         for i in range(int(prediction_duration)):
-            forecast_values.append(self.scaler.inverse_transform(self.model.predict(data_test.reshape(1,1,self.number_of_features))).flatten()[0])
+            prediction = self.model.predict(data_test.reshape(1,1,self.number_of_features))
+            forecast_values.append(self.scaler.inverse_transform(prediction).flatten()[0])
             np.roll(data_test, -1)
-            data_test[-1] = forecast_values[-1]
+            data_test[-1] = prediction.flatten()[0]
 
         dataframe_cols = {"yhat": np.array(forecast_values)}
 
