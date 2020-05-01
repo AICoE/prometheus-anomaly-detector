@@ -11,10 +11,10 @@ prometheus_api_client = "*"
 tornado = "*"
 dateparser = "*"
 mlflow = "*"
-keras = "*"
+keras = "==2.3.1"
 numpy = "*"
 scikit-learn = "*"
-tensorflow = "==1.14"
+tensorflow = "==2.2.0-rc3"
 
 [requires]
 python_version = "3.6"
