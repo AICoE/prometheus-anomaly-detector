@@ -2,36 +2,51 @@ import logging
 from prometheus_api_client import Metric
 #from keras import backend
 from keras.models import Sequential
-from keras.layers import Dense
+from keras.layers import Dense,Dropout
 from keras.layers import LSTM
+
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 import pandas as pd
+
 # Set up logging
 _LOGGER = logging.getLogger(__name__)
+
+
 class MetricPredictor:
     """docstring for Predictor."""
+
     model_name = "lstm"
     model_description = "Forecasted value from Lstm model"
     model = None
     predicted_df = None
     metric = None
+
     def __init__(self, metric, rolling_data_window_size="10d", number_of_feature=10, validation_ratio=0.2, parameter_tuning=True):
         """Initialize the Metric object."""
         self.metric = Metric(metric, rolling_data_window_size)
+
         self.number_of_features = number_of_feature
         self.scalar = MinMaxScaler(feature_range=(0, 1))
         self.parameter_tuning = parameter_tuning
         self.validation_ratio = validation_ratio
+
     def prepare_data(self, data):
         train_x = np.array(data[:, 1])[np.newaxis, :].T
+
         for i in range(self.number_of_features):
             train_x = np.concatenate((train_x, np.roll(data[:, 1], -i)[np.newaxis, :].T), axis=1)
+
         train_x = train_x[:train_x.shape[0] - self.number_of_features, :self.number_of_features]
+
+        train_yt = np.roll(data[:, 1], -self.number_of_features+1)
         train_y = np.roll(data[:, 1], -self.number_of_features)
+        train_y = train_y - train_yt
         train_y = train_y[:train_y.shape[0] - self.number_of_features]
+
         train_x = train_x.reshape(train_x.shape[0], 1, train_x.shape[1])
         return train_x, train_y
+
     def get_model(self, lstm_cell_count, dense_cell_count):
         model = Sequential()
         model.add(LSTM(64, return_sequences=True, input_shape=(1, self.number_of_features)))
@@ -39,16 +54,17 @@ class MetricPredictor:
         model.add(Dense(dense_cell_count))
         model.add(Dense(1))
         return model
+
     def train(self, metric_data=None, prediction_duration=15):
-#        backend.set_session(backend.tf.Session(config=backend.tf.ConfigProto(intra_op_parallelism_threads=1, inter_op_parallelism_threads=1)))
-        # convert incoming metric to Metric Object
         if metric_data:
             # because the rolling_data_window_size is set, this df should not bloat
             self.metric += Metric(metric_data)
+
         #normalising
         metric_values_np = self.metric.metric_values.values
         scaled_np_arr = self.scalar.fit_transform(metric_values_np[:, 1].reshape(-1, 1))
         metric_values_np[:, 1] = scaled_np_arr.flatten()
+
         if self.parameter_tuning:
             x, y = self.prepare_data(metric_values_np)
             lstm_cells = [2**i for i in range(5, 8)]
@@ -71,6 +87,7 @@ class MetricPredictor:
             self.lstm_cell_count = lstm_cell_count
             self.dense_cell_count = dense_cell_count
             self.parameter_tuning = False
+
         model = self.get_model(self.lstm_cell_count, self.dense_cell_count);
         _LOGGER.info(
             "training data range: %s - %s", self.metric.start_time, self.metric.end_time
@@ -83,12 +100,18 @@ class MetricPredictor:
         model.fit(data_x, data_y, epochs=50, batch_size=512)
         data_test = metric_values_np[-self.number_of_features:, 1]
         forecast_values = []
+        prev_value = data_test[-1]
         for i in range(int(prediction_duration)):
-            prediction = model.predict(data_test.reshape(1,1,self.number_of_features))
-            forecast_values.append(self.scalar.inverse_transform(prediction).flatten()[0])
-            np.roll(data_test, -1)
-            data_test[-1] = prediction.flatten()[0]
+            prediction = model.predict(data_test.reshape(1,1,self.number_of_features)).flatten()[0]
+            curr_pred_value = data_test[-1] + prediction
+            scaled_final_value = self.scalar.inverse_transform(curr_pred_value.reshape(1,-1)).flatten()[0]
+            forecast_values.append(scaled_final_value)
+            data_test = np.roll(data_test, -1)
+            data_test[-1] = curr_pred_value
+            prev_value = data_test[-1]
+
         dataframe_cols = {"yhat": np.array(forecast_values)}
+
         upper_bound = np.array(
             [
                 (
@@ -115,15 +138,19 @@ class MetricPredictor:
         )  # to account for no std of a single value
         dataframe_cols["yhat_upper"] = upper_bound
         dataframe_cols["yhat_lower"] = lower_bound
+
         data = self.metric.metric_values
         maximum_time = max(data["ds"])
         dataframe_cols["timestamp"] = pd.date_range(
             maximum_time, periods=len(forecast_values), freq="min"
         )
+
         forecast = pd.DataFrame(data=dataframe_cols)
         forecast = forecast.set_index("timestamp")
+
         self.predicted_df = forecast
         _LOGGER.debug(forecast)
+
     def predict_value(self, prediction_datetime):
         """Return the predicted value of the metric for the prediction_datetime."""
         nearest_index = self.predicted_df.index.get_loc(
