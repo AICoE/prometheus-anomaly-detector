@@ -10,8 +10,7 @@ import tornado.web
 from prometheus_client import Gauge, generate_latest, REGISTRY
 from prometheus_api_client import PrometheusConnect, Metric
 from configuration import Configuration
-#import model
-import model_lstm as model
+import model
 import schedule
 
 # Set up logging
