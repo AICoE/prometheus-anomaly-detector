@@ -1,8 +1,8 @@
+"""doctsring for packages."""
 import logging
 from prometheus_api_client import Metric
-#from keras import backend
 from keras.models import Sequential
-from keras.layers import Dense,Dropout
+from keras.layers import Dense
 from keras.layers import LSTM
 
 import numpy as np
@@ -22,7 +22,8 @@ class MetricPredictor:
     predicted_df = None
     metric = None
 
-    def __init__(self, metric, rolling_data_window_size="10d", number_of_feature=10, validation_ratio=0.2, parameter_tuning=True):
+    def __init__(self, metric, rolling_data_window_size="10d", number_of_feature=10, validation_ratio=0.2,
+                 parameter_tuning=True):
         """Initialize the Metric object."""
         self.metric = Metric(metric, rolling_data_window_size)
 
@@ -32,6 +33,7 @@ class MetricPredictor:
         self.validation_ratio = validation_ratio
 
     def prepare_data(self, data):
+        """Prepare the data for LSTM"""
         train_x = np.array(data[:, 1])[np.newaxis, :].T
 
         for i in range(self.number_of_features):
@@ -39,7 +41,7 @@ class MetricPredictor:
 
         train_x = train_x[:train_x.shape[0] - self.number_of_features, :self.number_of_features]
 
-        train_yt = np.roll(data[:, 1], -self.number_of_features+1)
+        train_yt = np.roll(data[:, 1], -self.number_of_features + 1)
         train_y = np.roll(data[:, 1], -self.number_of_features)
         train_y = train_y - train_yt
         train_y = train_y[:train_y.shape[0] - self.number_of_features]
@@ -48,6 +50,7 @@ class MetricPredictor:
         return train_x, train_y
 
     def get_model(self, lstm_cell_count, dense_cell_count):
+        """Build the model"""
         model = Sequential()
         model.add(LSTM(64, return_sequences=True, input_shape=(1, self.number_of_features)))
         model.add(LSTM(lstm_cell_count))
@@ -56,19 +59,20 @@ class MetricPredictor:
         return model
 
     def train(self, metric_data=None, prediction_duration=15):
+        """Train the model"""
         if metric_data:
             # because the rolling_data_window_size is set, this df should not bloat
             self.metric += Metric(metric_data)
 
-        #normalising
+        # normalising
         metric_values_np = self.metric.metric_values.values
         scaled_np_arr = self.scalar.fit_transform(metric_values_np[:, 1].reshape(-1, 1))
         metric_values_np[:, 1] = scaled_np_arr.flatten()
 
         if self.parameter_tuning:
             x, y = self.prepare_data(metric_values_np)
-            lstm_cells = [2**i for i in range(5, 8)]
-            dense_cells = [2**i for i in range(5, 8)]
+            lstm_cells = [2 ** i for i in range(5, 8)]
+            dense_cells = [2 ** i for i in range(5, 8)]
             loss = np.inf
             lstm_cell_count = 0
             dense_cell_count = 0
@@ -88,7 +92,7 @@ class MetricPredictor:
             self.dense_cell_count = dense_cell_count
             self.parameter_tuning = False
 
-        model = self.get_model(self.lstm_cell_count, self.dense_cell_count);
+        model = self.get_model(self.lstm_cell_count, self.dense_cell_count)
         _LOGGER.info(
             "training data range: %s - %s", self.metric.start_time, self.metric.end_time
         )
@@ -102,9 +106,9 @@ class MetricPredictor:
         forecast_values = []
         prev_value = data_test[-1]
         for i in range(int(prediction_duration)):
-            prediction = model.predict(data_test.reshape(1,1,self.number_of_features)).flatten()[0]
+            prediction = model.predict(data_test.reshape(1, 1, self.number_of_features)).flatten()[0]
             curr_pred_value = data_test[-1] + prediction
-            scaled_final_value = self.scalar.inverse_transform(curr_pred_value.reshape(1,-1)).flatten()[0]
+            scaled_final_value = self.scalar.inverse_transform(curr_pred_value.reshape(1, -1)).flatten()[0]
             forecast_values.append(scaled_final_value)
             data_test = np.roll(data_test, -1)
             data_test[-1] = curr_pred_value
@@ -115,8 +119,7 @@ class MetricPredictor:
         upper_bound = np.array(
             [
                 (
-                            forecast_values[i]
-                        + (np.std(forecast_values[:i]) * 2)
+                        forecast_values[i] + (np.std(forecast_values[:i]) * 2)
                 )
                 for i in range(len(forecast_values))
             ]
@@ -127,8 +130,7 @@ class MetricPredictor:
         lower_bound = np.array(
             [
                 (
-                            forecast_values[i]
-                        - (np.std(forecast_values[:i]) * 2)
+                        forecast_values[i] - (np.std(forecast_values[:i]) * 2)
                 )
                 for i in range(len(forecast_values))
             ]
