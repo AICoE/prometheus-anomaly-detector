@@ -33,7 +33,7 @@ class MetricPredictor:
         self.validation_ratio = validation_ratio
 
     def prepare_data(self, data):
-        """Prepare the data for LSTM"""
+        """Prepare the data for LSTM."""
         train_x = np.array(data[:, 1])[np.newaxis, :].T
 
         for i in range(self.number_of_features):
@@ -50,7 +50,7 @@ class MetricPredictor:
         return train_x, train_y
 
     def get_model(self, lstm_cell_count, dense_cell_count):
-        """Build the model"""
+        """Build the model."""
         model = Sequential()
         model.add(LSTM(64, return_sequences=True, input_shape=(1, self.number_of_features)))
         model.add(LSTM(lstm_cell_count))
@@ -59,7 +59,7 @@ class MetricPredictor:
         return model
 
     def train(self, metric_data=None, prediction_duration=15):
-        """Train the model"""
+        """Train the model."""
         if metric_data:
             # because the rolling_data_window_size is set, this df should not bloat
             self.metric += Metric(metric_data)
