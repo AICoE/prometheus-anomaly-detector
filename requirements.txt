@@ -3,7 +3,7 @@ schedule==0.6.0
 prometheus-client==0.8.0
 prometheus-api-client==0.4.0
 tornado==6.0.4
-fbprophet
+fbprophet==0.6
 mlflow==1.10.0
 plotly==4.8.2
 numpy~=1.18.3
