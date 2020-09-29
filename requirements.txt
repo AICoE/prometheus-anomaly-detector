@@ -5,6 +5,6 @@ prometheus_api_client
 tornado
 fbprophet
 mlflow
-numpy~=1.18.3
-Keras~=2.3.1
-scikit-learn~=0.22.2.post1
+numpy
+Keras
+scikit-learn
