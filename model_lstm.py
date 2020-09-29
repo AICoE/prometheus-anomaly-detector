@@ -80,7 +80,9 @@ class MetricPredictor:
                 for dense_cell_count_ in dense_cells:
                     model = self.get_model(lstm_cell_count_, dense_cell_count_)
                     model.compile(loss='mean_squared_error', optimizer='adam')
-                    history = model.fit(x, y, epochs=50, batch_size=512, verbose=0,
+                    history = model.fit(np.asarray(x).astype(np.float32),
+                                        np.asarray(y).astype(np.float32),
+                                        epochs=50, batch_size=512, verbose=0,
                                         validation_split=self.validation_ratio)
                     val_loss = history.history['val_loss']
                     loss_ = min(val_loss)
@@ -101,8 +103,8 @@ class MetricPredictor:
         data_x, data_y = self.prepare_data(metric_values_np)
         _LOGGER.debug(data_x.shape)
         model.compile(loss='mean_squared_error', optimizer='adam')
-        model.fit(data_x, data_y, epochs=50, batch_size=512)
-        data_test = metric_values_np[-self.number_of_features:, 1]
+        model.fit(np.asarray(data_x).astype(np.float32), np.asarray(data_y).astype(np.float32), epochs=50, batch_size=512)
+        data_test = np.asarray(metric_values_np[-self.number_of_features:, 1]).astype(np.float32)
         forecast_values = []
         prev_value = data_test[-1]
         for i in range(int(prediction_duration)):

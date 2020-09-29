@@ -12,11 +12,10 @@ tornado = "*"
 fbprophet = "*"
 dateparser = "*"
 mlflow = "*"
-holidays = "==0.9.12"
 keras = "*"
 numpy = "*"
 scikit-learn = "*"
-tensorflow = "==1.14"
+tensorflow = "*"
 
 [requires]
-python_version = "3.6"
+python_version = "3.8"
