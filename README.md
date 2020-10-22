@@ -33,6 +33,22 @@ You can also use the `Makefile` to run the application:
 make run_app
 ```
 
+## Using the pre-built Container Image
+* We have a pre-built container image available that you can use to deploy the Prometheus Anomaly Detector.
+* The image is hosted at:  `quay.io/aicoe/prometheus-anomaly-detector:latest`
+* Example command: *(make sure port 8080 is available)*
+    ```
+    docker run --name pad -p 8080:8080 --network host \
+        --env FLT_PROM_URL=http://demo.robustperception.io:9090 \
+        --env FLT_RETRAINING_INTERVAL_MINUTES=15 \
+        --env FLT_METRICS_LIST='up' \
+        --env APP_FILE=app.py \
+        --env FLT_DATA_START_TIME=3d \
+        --env FLT_ROLLING_TRAINING_WINDOW_SIZE=15d \
+        quay.io/aicoe/prometheus-anomaly-detector:latest
+    ```
+ * To remove the container, run `docker rm pad`
+
 ## Implementation
 The current setup is as follows:
 ![Thoth Dgraph anomaly detection - blog post (1)](https://user-images.githubusercontent.com/7343099/64876301-d9062e00-d61c-11e9-80b6-35cb5c9e4540.jpg)
