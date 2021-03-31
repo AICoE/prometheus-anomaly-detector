@@ -1,5 +1,5 @@
 # Anomaly Detection in Prometheus Metrics
-This repository contains the prototype for a Prometheus Anomaly Detector (PAD) which can be deployed on OpenShift. The PAD is a framework to deploy a metric prediction model to detect anomalies in prometheus metrics. 
+This repository contains the prototype for a Prometheus Anomaly Detector (PAD) which can be deployed on OpenShift. The PAD is a framework to deploy a metric prediction model to detect anomalies in prometheus metrics.
 
 Prometheus is the chosen application to do monitoring across multiple products and platforms. Prometheus metrics are time series data identified by metric name and key/value pairs. With the increased amount of metrics flowing in it is getting harder to see the signals within the noise. The current state of the art is to graph out metrics on dashboards and alert on thresholds. This application leverages machine learning algorithms such as Fourier and Prophet models to perform time series forecasting and predict anomalous behavior in the metrics. The predicted values are compared with the actual values and if they differ from the default threshold values, it is flagged as an anomaly.
 
@@ -36,7 +36,7 @@ make run_app
 ## Using the pre-built Container Image
 * We have a pre-built container image available that you can use to deploy the Prometheus Anomaly Detector.
 * The image is hosted at:  `quay.io/aicoe/prometheus-anomaly-detector:latest`
-* Example command: *(make sure port 8080 is available)*
+* Example command: *(make sure port 8080 is exposed - this is where /metrics will be available.)*
     ```
     docker run --name pad -p 8080:8080 --network host \
         --env FLT_PROM_URL=http://demo.robustperception.io:9090 \
@@ -59,14 +59,14 @@ The current setup is as follows:
   - Prophet[https://facebook.github.io/prophet/] - Procedure developed by Facebook for forecasting time series data based on an additive model where non-linear trends are fit with yearly, weekly, and daily seasonality, plus holiday effects. It works best with time series that have strong seasonal effects and several seasons of historical data. The following are the forecasted values:
     - `yhat` - Predicted time series value
     - `yhat_lower` - Lower bound of uncertainity interval
-    - `yhat_upper` - Upper bound of uncertainity interval 
+    - `yhat_upper` - Upper bound of uncertainity interval
 - **Visualization** - Grafana dashboards are created to visualize the predicted  metrics
 - **Alerts** - Prometheus alerts are configured based on predicted metric values
 
 ![Thoth Dgraph anomaly detection - blog post (2)](https://user-images.githubusercontent.com/7343099/64876403-081c9f80-d61d-11e9-84df-266c91a75dde.jpg)
 
 # Model Testing
-For a given timeframe of a metric, with known anomalies, the PAD can be run in `test-mode` to check whether the models reported back these anomalies. The accuracy and performance of the models can then be logged as metrics to MLFlow for comparing the results. 
+For a given timeframe of a metric, with known anomalies, the PAD can be run in `test-mode` to check whether the models reported back these anomalies. The accuracy and performance of the models can then be logged as metrics to MLFlow for comparing the results.
 
 MLflow is an open source platform to manage the ML lifecycle, including experimentation, reproducibility and deployment. It currently offers three components:
 ![Screenshot from 2019-09-04 15-19-57](https://user-images.githubusercontent.com/7343099/64284396-87c4b300-cf27-11e9-8990-e4323a000d6a.png)
