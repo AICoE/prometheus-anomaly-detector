@@ -3,7 +3,8 @@ import time
 import os
 import logging
 from datetime import datetime
-from multiprocessing import Process, Queue
+from multiprocessing import Pool, Process, Queue
+from functools import partial
 from queue import Empty as EmptyQueueException
 import tornado.ioloop
 import tornado.web
@@ -117,37 +118,54 @@ def make_app(data_queue):
         ]
     )
 
+def train_individual_model(predictor_model, initial_run):
+    metric_to_predict = predictor_model.metric
+    pc = PrometheusConnect(
+    url=Configuration.prometheus_url,
+    headers=Configuration.prom_connect_headers,
+    disable_ssl=True,
+    )
+
+    data_start_time = datetime.now() - Configuration.metric_chunk_size
+    if initial_run:
+        data_start_time = (
+            datetime.now() - Configuration.rolling_training_window_size
+        )
+
+    # Download new metric data from prometheus
+    new_metric_data = pc.get_metric_range_data(
+        metric_name=metric_to_predict.metric_name,
+        label_config=metric_to_predict.label_config,
+        start_time=data_start_time,
+        end_time=datetime.now(),
+    )[0]
+
+    # Train the new model
+    start_time = datetime.now()
+    predictor_model.train(
+            new_metric_data, Configuration.retraining_interval_minutes)
+
+    _LOGGER.info(
+        "Total Training time taken = %s, for metric: %s %s",
+        str(datetime.now() - start_time),
+        metric_to_predict.metric_name,
+        metric_to_predict.label_config,
+    )
+    return predictor_model
 
 def train_model(initial_run=False, data_queue=None):
     """Train the machine learning model."""
-    for predictor_model in PREDICTOR_MODEL_LIST:
-        metric_to_predict = predictor_model.metric
-        data_start_time = datetime.now() - Configuration.metric_chunk_size
-        if initial_run:
-            data_start_time = (
-                datetime.now() - Configuration.rolling_training_window_size
-            )
-
-        # Download new metric data from prometheus
-        new_metric_data = pc.get_metric_range_data(
-            metric_name=metric_to_predict.metric_name,
-            label_config=metric_to_predict.label_config,
-            start_time=data_start_time,
-            end_time=datetime.now(),
-        )[0]
-
-        # Train the new model
-        start_time = datetime.now()
-        predictor_model.train(
-            new_metric_data, Configuration.retraining_interval_minutes
-        )
-        _LOGGER.info(
-            "Total Training time taken = %s, for metric: %s %s",
-            str(datetime.now() - start_time),
-            metric_to_predict.metric_name,
-            metric_to_predict.label_config,
-        )
-
+    global PREDICTOR_MODEL_LIST
+    if Configuration.parallelism_required:
+        _LOGGER.info("Training models concurrently using ProcessPool")
+        training_partial = partial(train_individual_model, initial_run=initial_run)
+        with Pool() as p:
+            result = p.map(training_partial, PREDICTOR_MODEL_LIST)
+        PREDICTOR_MODEL_LIST = result
+    else:
+        _LOGGER.info("Training models sequentially")
+        for predictor_model in PREDICTOR_MODEL_LIST:
+            model = train_individual_model(predictor_model, initial_run)
     data_queue.put(PREDICTOR_MODEL_LIST)
 
 

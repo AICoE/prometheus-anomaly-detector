@@ -57,3 +57,8 @@ class Configuration:
         "Metric data rolling training window size: %s", rolling_training_window_size
     )
     _LOGGER.info("Model retraining interval: %s minutes", retraining_interval_minutes)
+
+    # An option for Parallelism.
+    # Setting FLT_PARALLELISM to True will enable the useage of a process pool
+    # during training.
+    parallelism_required = bool(os.getenv("FLT_PARALLELISM", ""))
