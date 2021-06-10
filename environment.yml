@@ -3,10 +3,12 @@ name: prophet-env
 channels:
   - conda-forge
 dependencies:
-  - python=3.8
+  - python=3.6
   - pip
   - fbprophet
   - pip:
+      - tensorflow==1.14
+      - keras==2.2.5
       - pandas
       - schedule
       - prometheus_client
@@ -15,5 +17,5 @@ dependencies:
       - dateparser
       - mlflow
       - numpy
-      - keras
       - scikit-learn
+      - plotly

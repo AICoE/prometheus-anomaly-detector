@@ -53,6 +53,9 @@ class Configuration:
     )
     metric_chunk_size = parse_timedelta("now", str(retraining_interval_minutes) + "m")
 
+    # Mode set
+    model_type = str(os.getenv("FLT_MODEL_TYPE","Prophet"))
+
     _LOGGER.info(
         "Metric data rolling training window size: %s", rolling_training_window_size
     )
