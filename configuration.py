@@ -59,6 +59,8 @@ class Configuration:
     _LOGGER.info("Model retraining interval: %s minutes", retraining_interval_minutes)
 
     # An option for Parallelism.
-    # Setting FLT_PARALLELISM to True will enable the useage of a process pool
-    # during training.
-    parallelism_required = bool(os.getenv("FLT_PARALLELISM", ""))
+    # An Integer specifying the number of metrics to be trained in parallel.
+    # Default: 1.
+    # Note: The upper limit to this will be decided by the number of CPU cores 
+    # available to the container.
+    parallelism = int(os.getenv("FLT_PARALLELISM", "1"))

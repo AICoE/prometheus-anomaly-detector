@@ -4,6 +4,7 @@ import os
 import logging
 from datetime import datetime
 from multiprocessing import Pool, Process, Queue
+from multiprocessing import cpu_count
 from functools import partial
 from queue import Empty as EmptyQueueException
 import tornado.ioloop
@@ -156,16 +157,12 @@ def train_individual_model(predictor_model, initial_run):
 def train_model(initial_run=False, data_queue=None):
     """Train the machine learning model."""
     global PREDICTOR_MODEL_LIST
-    if Configuration.parallelism_required:
-        _LOGGER.info("Training models concurrently using ProcessPool")
-        training_partial = partial(train_individual_model, initial_run=initial_run)
-        with Pool() as p:
-            result = p.map(training_partial, PREDICTOR_MODEL_LIST)
-        PREDICTOR_MODEL_LIST = result
-    else:
-        _LOGGER.info("Training models sequentially")
-        for predictor_model in PREDICTOR_MODEL_LIST:
-            model = train_individual_model(predictor_model, initial_run)
+    parallelism = min(Configuration.parallelism, cpu_count())
+    _LOGGER.info(f"Training models using ProcessPool of size:{parallelism}")
+    training_partial = partial(train_individual_model, initial_run=initial_run)
+    with Pool(parallelism) as p:
+        result = p.map(training_partial, PREDICTOR_MODEL_LIST)
+    PREDICTOR_MODEL_LIST = result
     data_queue.put(PREDICTOR_MODEL_LIST)
 
 
