@@ -57,3 +57,10 @@ class Configuration:
         "Metric data rolling training window size: %s", rolling_training_window_size
     )
     _LOGGER.info("Model retraining interval: %s minutes", retraining_interval_minutes)
+
+    # An option for Parallelism.
+    # An Integer specifying the number of metrics to be trained in parallel.
+    # Default: 1.
+    # Note: The upper limit to this will be decided by the number of CPU cores 
+    # available to the container.
+    parallelism = int(os.getenv("FLT_PARALLELISM", "1"))
