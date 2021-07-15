@@ -1,11 +1,11 @@
 ---
-name: prophet-env
+name: PAD
 channels:
   - conda-forge
 dependencies:
   - python=3.8
   - pip
-  - fbprophet
+  - prophet
   - pip:
       - pandas
       - schedule
@@ -15,5 +15,5 @@ dependencies:
       - dateparser
       - mlflow
       - numpy
-      - keras
+      - tensorflow
       - scikit-learn
