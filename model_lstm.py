@@ -1,9 +1,9 @@
 """doctsring for packages."""
 import logging
 from prometheus_api_client import Metric
-from keras.models import Sequential
-from keras.layers import Dense
-from keras.layers import LSTM
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import LSTM
 
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler

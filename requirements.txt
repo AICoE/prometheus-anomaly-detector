@@ -3,8 +3,9 @@ schedule
 prometheus_client
 prometheus_api_client
 tornado
-fbprophet
+pystan==2.19.1.1
+prophet
 mlflow
 numpy
-Keras
 scikit-learn
+tensorflow
