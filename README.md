@@ -16,7 +16,8 @@ The use case for this framework is to assist teams in real-time alerting of thei
 <br> Example: If this parameter is set to `15`, it will collect the past 15 minutes of metric data every 15 minutes and append it to the training dataframe.
 * `FLT_ROLLING_TRAINING_WINDOW_SIZE` - This parameter limits the size of the training dataframe to prevent Out of Memory errors. It can be set to the duration of data that should be stored in memory as dataframes. (Default `15d`)
 <br> Example: If set to `1d`, every time before training the model using the training dataframe, the metric data that is older than 1 day will be deleted.
-
+* `FLT_PARALLELISM` - An option for parallelism. Each metric is "assigned" a separate model object. This parameter reperesents the number of models that will be trained concurrently. 
+<br> The default value is set as `1` and the upper limit will depend on the number of CPU cores provided to the container.
 If you are testing locally, you can do the following:
 - Environment variables are loaded from `.env`. `pipenv` will load these automatically. So make sure you execute everything via `pipenv install`.
 
