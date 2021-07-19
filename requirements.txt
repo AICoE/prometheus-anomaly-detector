@@ -8,4 +8,4 @@ prophet
 mlflow
 numpy
 scikit-learn
-tensorflow
+tensorflow>=2.0,<2.5

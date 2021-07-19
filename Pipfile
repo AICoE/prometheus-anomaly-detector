@@ -15,7 +15,7 @@ dateparser = "*"
 mlflow = "*"
 numpy = "*"
 scikit-learn = "*"
-tensorflow = "*"
+tensorflow = ">=2.0, <2.5"
 
 [requires]
 python_version = "3.8"

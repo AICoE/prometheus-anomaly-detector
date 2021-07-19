@@ -15,5 +15,5 @@ dependencies:
       - dateparser
       - mlflow
       - numpy
-      - tensorflow
+      - tensorflow >=2.0,<2.5
       - scikit-learn
