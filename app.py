@@ -91,11 +91,17 @@ class MainHandler(tornado.web.RequestHandler):
                 ).set(prediction[column_name][0])
 
             # Calculate for an anomaly (can be different for different models)
+            confidence_range = Configuration.confidence
+
+            # Width of the upper and lower boundaries
+            upper_range = prediction["yhat_upper"][0] - prediction["yhat"][0]
+            lower_range = prediction["yhat"][0] - prediction["yhat_lower"][0]
+            
             anomaly = 1
             if (
-                current_metric_value.metric_values["y"][0] < prediction["yhat_upper"][0]
+                current_metric_value.metric_values["y"][0] < prediction["yhat"][0] + confidence_range*upper_range
             ) and (
-                current_metric_value.metric_values["y"][0] > prediction["yhat_lower"][0]
+                current_metric_value.metric_values["y"][0] > prediction["yhat"][0] - confidence_range*lower_range
             ):
                 anomaly = 0
 

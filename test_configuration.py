@@ -58,6 +58,12 @@ class Configuration:
     retraining_interval_minutes = int(os.getenv("FLT_RETRAINING_INTERVAL_MINUTES", "120"))
     metric_chunk_size = parse_timedelta("now", str(retraining_interval_minutes) + "m")
 
+    # This will enforce a certain degree of control on the confidence range (between yhat_lower and yhat_upper)
+    # Confidence range will have values in range (0, 2)
+    # Higher the value, less sensitive will the anomaly detection be
+    # Values smaller than 1 will shrink the range and values larger than 1 will expand it
+    confidence = float(os.getenv("CONFIDENCE_RANGE", "1"))
+
     _LOGGER.info("Metric train data start time: %s", metric_start_time)
     _LOGGER.info("Metric train data end time/test data start time: %s", metric_train_data_end_time)
     _LOGGER.info("Metric test end time: %s", metric_end_time)

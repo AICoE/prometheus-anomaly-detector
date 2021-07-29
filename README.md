@@ -19,6 +19,8 @@ The use case for this framework is to assist teams in real-time alerting of thei
 * `FLT_PARALLELISM` - An option for parallelism. Each metric is "assigned" a separate model object. This parameter reperesents the number of models that will be trained concurrently. 
 <br> The default value is set as `1` and the upper limit will depend on the number of CPU cores provided to the container.
 If you are testing locally, you can do the following:
+* `FLT_CONFIDENCE_RANGE` - This parameter will allow manipulation of sensitivity of the anomaly detection. It takes a value between -1 to 1 and accordingly stretches or shrinks the confidence range (gap between yhat_lower and yhat_upper). 
+<br>  Higher value (~2) will increase the permissible range and make it less sensitive to anomaly alerts. Similarly, smaller value (~0) will make it more sensitive.
 - Environment variables are loaded from `.env`. `pipenv` will load these automatically. So make sure you execute everything via `pipenv install`.
 
 Configuration is currently done via environment variables. The configuration options are defined in `prometheus-anomaly-detector/configuration.py`.
