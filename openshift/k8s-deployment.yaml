@@ -22,7 +22,7 @@ spec:
             - name: FLT_METRICS_LIST
               value: "up"
             - name: FLT_RETRAINING_INTERVAL_MINUTES
-              value: "15m"
+              value: "15"
             - name: FLT_ROLLING_TRAINING_WINDOW_SIZE
               value: "24h"
             - name: FLT_DEBUG_MODE
