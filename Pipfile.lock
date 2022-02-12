@@ -777,13 +777,6 @@
             ],
             "version": "==0.18.2"
         },
-        "prophet": {
-            "hashes": [
-                "sha256:3e682e8ea6e1ee26a92cf289f207d539f30e44879126c128ff8f4e360eb25a8b"
-            ],
-            "index": "pypi",
-            "version": "==1.0.1"
-        },
         "protobuf": {
             "hashes": [
                 "sha256:13ee7be3c2d9a5d2b42a1030976f760f28755fcf5863c55b1460fd205e6cd637",
