@@ -14,6 +14,8 @@ from prometheus_api_client import PrometheusConnect, Metric
 from configuration import Configuration
 import model
 import schedule
+import threading
+
 
 # Set up logging
 _LOGGER = logging.getLogger(__name__)
@@ -29,6 +31,8 @@ pc = PrometheusConnect(
     headers=Configuration.prom_connect_headers,
     disable_ssl=True,
 )
+# print("hiiii")
+# print(Configuration.prom_connect_headers)
 
 for metric in METRICS_LIST:
     # Initialize a predictor for all metrics first
@@ -152,6 +156,7 @@ def train_individual_model(predictor_model, initial_run):
         metric_to_predict.metric_name,
         metric_to_predict.label_config,
     )
+
     return predictor_model
 
 def train_model(initial_run=False, data_queue=None):
@@ -165,6 +170,8 @@ def train_model(initial_run=False, data_queue=None):
     PREDICTOR_MODEL_LIST = result
     data_queue.put(PREDICTOR_MODEL_LIST)
 
+def start_ioloop():
+    tornado.ioloop.IOLoop.current().start()
 
 if __name__ == "__main__":
     # Queue to share data between the tornado server and the model training
@@ -176,9 +183,14 @@ if __name__ == "__main__":
     # Set up the tornado web app
     app = make_app(predicted_model_queue)
     app.listen(8080)
-    server_process = Process(target=tornado.ioloop.IOLoop.instance().start)
-    # Start up the server to expose the metrics.
-    server_process.start()
+    # server_process = Process(target=tornado.ioloop.IOLoop.instance().start)
+    # # Start up the server to expose the metrics.
+    # server_process.start()
+
+    server_thread = threading.Thread(target=start_ioloop)
+
+    # Start the server thread
+    server_thread.start()
 
     # Schedule the model training
     schedule.every(Configuration.retraining_interval_minutes).minutes.do(
@@ -193,4 +205,4 @@ if __name__ == "__main__":
         time.sleep(1)
 
     # join the server process in case the main process ends
-    server_process.join()
+    server_thread.join()

@@ -24,10 +24,11 @@ class Configuration:
     # any headers that need to be passed while connecting to the prometheus host
     prom_connect_headers = None
     # example oath token passed as a header
-    if os.getenv("FLT_PROM_ACCESS_TOKEN"):
-        prom_connect_headers = {
-            "Authorization": "bearer " + os.getenv("FLT_PROM_ACCESS_TOKEN")
-        }
+    prom_connect_headers = {
+            "x-scope-org-id": "something-else-for-testing",
+            "X-Scope-OrgID": "something-else-for-testing"
+    }
+        
 
     # list of metrics that need to be scraped and predicted
     # multiple metrics can be separated with a ";"

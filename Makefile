@@ -67,13 +67,13 @@ oc_delete_model_test:
 	| oc delete -f -
 
 run_app_pipenv:
-	pipenv run python app.py
+	pipenv run python3 app.py
 
 run_test_pipenv:
-	pipenv run python test_model.py
+	pipenv run python3 test_model.py
 
 run_app:
-	python app.py
+	python3 app.py
 
 run_test:
-	python test_model.py
+	python3 test_model.py
